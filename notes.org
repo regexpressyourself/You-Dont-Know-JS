@@ -1,0 +1,116 @@
+* Scopes & Closures
+** Scope
+*** Functions
+**** Callbacks
+     - Always name callback function expressions
+       - For debug and readability purposes
+**** IIFE - Immediately Invoked Function Expression
+     - Call an anonymous function expression right after declaring it
+       #+BEGIN_SRC javascript
+     (function(){ .. })()
+       #+END_SRC
+       or
+       #+BEGIN_SRC javascript
+     (function(){ .. }())
+       #+END_SRC
+       (both work the same)
+*** Vars
+    - let for block scoping in ES6
+    - const for block scoping and constant value in ES6
+*** Block Scoping
+    - Not allowed most anywhere in JS
+**** Allowed in:
+     - Catch blocks are block scoped by default
+     - let variable - ES6
+       - like var, but block scope, not function scope
+       - no hoisting
+       - Can be used to help in garbage collection (really big vars in small blocks don't hold memory for long)
+     - const variable
+       - like let, but final
+** Hoisting
+   - All vars are hoisted
+   - functions are hoisted first
+     - The last function will be called instead of the first var if both have same name, regardless of placement
+     - The last of two functions will be called when they share a name
+** Closures
+   - Closure is when a function is able to remember and access its lexical scope even when that function is executing outside its lexical scope.
+     #+BEGIN_SRC javascript
+     function foo() {
+       var a = 2;
+
+       function bar() {
+         console.log( a );
+         }
+
+       return bar;
+     }
+
+     var baz = foo();
+
+     baz(); // 2 -- Whoa, closure was just observed, man.   
+     #+END_SRC
+     - IIFE can be seen as an example of closure when there is a function inside the function expression
+*** Caveats to closure
+    #+BEGIN_SRC javascript
+      for (var i=1; i<=5; i++) {
+         setTimeout( function timer(){
+             console.log( i );
+         }, i*1000 );
+      }
+      /* 6 is printed 5 times, as timer() is running independent of the for loop*/
+    #+END_SRC
+
+    #+BEGIN_SRC javascript
+      for (var i=1; i<=5; i++) {
+          (function(){
+              var j = i;
+              setTimeout( function timer(){
+                  console.log( j );
+              }, j*1000 );
+          })();
+      }
+      /* 1 2 3 4 5 is printed, as j is necessarily bound to i in the function, which then is passed to timer() */
+    #+END_SRC
+
+    Let can fix alllllll this
+
+    #+BEGIN_SRC javascript
+
+      for (let i=1; i<=5; i++) {
+          setTimeout( function timer(){
+              console.log( i );
+          }, i*1000 );
+      }
+    #+END_SRC
+*** Modules
+    - modules make use of closure in a similar way to java and class variables
+    - A module is a function that acts like a class, i.e. one that cannot do anything on its own, but can perform actions once instantiated
+    #+BEGIN_SRC javascript
+      function CoolModule() {
+          var something = "cool";
+          var another = [1, 2, 3];
+
+          function doSomething() {
+              console.log( something );
+          }
+
+          function doAnother() {
+              console.log( another.join( " ! " ) );
+          }
+      
+          return {
+              doSomething: doSomething,
+              doAnother: doAnother
+          };
+      }
+
+      var foo = CoolModule();
+
+      foo.doSomething(); // cool
+      foo.doAnother(); // 1 ! 2 ! 3
+    #+END_SRC
+    - ES6 takes it all a step further, making files modules
+      - The following imports hello from the file bar.js:
+    #+BEGIN_SRC javascript
+      import hello from bar
+    #+END_SRC
