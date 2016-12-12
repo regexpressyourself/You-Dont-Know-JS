@@ -49,6 +49,11 @@
 
      baz(); // 2 -- Whoa, closure was just observed, man.   
      #+END_SRC
+     - check it:
+       1. foo returns bar to baz, passing it as a value
+       2. bar "lives on" in a sense, even beyond its scope, because it is still being referenced by baz
+       3. Along with bar the function living on, its scope lives on alongside it. In a sense, it brings the environment it was declared in along with it so it can feel comfy outside of its scope.
+       4. Even well after foo has been executed, var a still exists. It is inexorably tied to anything that references bar
      - IIFE can be seen as an example of closure when there is a function inside the function expression
 *** Caveats to closure
     #+BEGIN_SRC javascript
@@ -57,8 +62,8 @@
              console.log( i );
          }, i*1000 );
       }
-      /* 6 is printed 5 times, as timer() is running independent of the for loop*/
     #+END_SRC
+      6 is printed 5 times. timer() is running 1000 seconds after being called, 6 times over. By the time timer() runs, the for loop will be done, and the i that it was instantiated with will be at 6. each timer() function shares the same scope, and thus the same i.
 
     #+BEGIN_SRC javascript
       for (var i=1; i<=5; i++) {
@@ -69,10 +74,12 @@
               }, j*1000 );
           })();
       }
-      /* 1 2 3 4 5 is printed, as j is necessarily bound to i in the function, which then is passed to timer() */
     #+END_SRC
+      1 2 3 4 5 is printed, as j is necessarily bound to i in the function, which then is passed to timer(). 
+The IIFE "blocks" the other iterations' timer() function from getting in the way of each other, as it is specific to the iteration 
 
-    Let can fix alllllll this
+
+    Let and block scoping can fix alllllll this nonsense
 
     #+BEGIN_SRC javascript
 
@@ -114,3 +121,4 @@
     #+BEGIN_SRC javascript
       import hello from bar
     #+END_SRC
+    
