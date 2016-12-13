@@ -6,11 +6,11 @@
        - For debug and readability purposes
 **** IIFE - Immediately Invoked Function Expression
      - Call an anonymous function expression right after declaring it
-       #+BEGIN_SRC javascript
+       #+BEGIN_SRC js
      (function(){ .. })()
        #+END_SRC
        or
-       #+BEGIN_SRC javascript
+       #+BEGIN_SRC js
      (function(){ .. }())
        #+END_SRC
        (both work the same)
@@ -34,7 +34,7 @@
      - The last of two functions will be called when they share a name
 ** Closures
    - Closure is when a function is able to remember and access its lexical scope even when that function is executing outside its lexical scope.
-     #+BEGIN_SRC javascript
+     #+BEGIN_SRC js
      function foo() {
        var a = 2;
 
@@ -56,16 +56,16 @@
        4. Even well after foo has been executed, var a still exists. It is inexorably tied to anything that references bar
      - IIFE can be seen as an example of closure when there is a function inside the function expression
 *** Caveats to closure
-    #+BEGIN_SRC javascript
+    #+BEGIN_SRC js
       for (var i=1; i<=5; i++) {
          setTimeout( function timer(){
              console.log( i );
          }, i*1000 );
       }
     #+END_SRC
-      6 is printed 5 times. timer() is running 1000 seconds after being called, 6 times over. By the time timer() runs, the for loop will be done, and the i that it was instantiated with will be at 6. each timer() function shares the same scope, and thus the same i.
-
-    #+BEGIN_SRC javascript
+    6 is printed 5 times. timer() is running 1000 seconds after being called, 6 times over. By the time timer() runs, the for loop will be done, and the i that it was instantiated with will be at 6. each timer() function shares the same scope, and thus the same i.
+    
+    #+BEGIN_SRC js
       for (var i=1; i<=5; i++) {
           (function(){
               var j = i;
@@ -75,13 +75,13 @@
           })();
       }
     #+END_SRC
-      1 2 3 4 5 is printed, as j is necessarily bound to i in the function, which then is passed to timer(). 
-The IIFE "blocks" the other iterations' timer() function from getting in the way of each other, as it is specific to the iteration 
-
-
+    1 2 3 4 5 is printed, as j is necessarily bound to i in the function, which then is passed to timer(). 
+    The IIFE "blocks" the other iterations' timer() function from getting in the way of each other, as it is specific to the iteration 
+    
+    
     Let and block scoping can fix alllllll this nonsense
-
-    #+BEGIN_SRC javascript
+    
+    #+BEGIN_SRC js
 
       for (let i=1; i<=5; i++) {
           setTimeout( function timer(){
@@ -92,7 +92,7 @@ The IIFE "blocks" the other iterations' timer() function from getting in the way
 *** Modules
     - modules make use of closure in a similar way to java and class variables
     - A module is a function that acts like a class, i.e. one that cannot do anything on its own, but can perform actions once instantiated
-    #+BEGIN_SRC javascript
+    #+BEGIN_SRC js :session
       function CoolModule() {
           var something = "cool";
           var another = [1, 2, 3];
@@ -116,9 +116,79 @@ The IIFE "blocks" the other iterations' timer() function from getting in the way
       foo.doSomething(); // cool
       foo.doAnother(); // 1 ! 2 ! 3
     #+END_SRC
+    
     - ES6 takes it all a step further, making files modules
       - The following imports hello from the file bar.js:
-    #+BEGIN_SRC javascript
+    #+BEGIN_SRC js
       import hello from bar
     #+END_SRC
     
+* /this/ & Object Prototypes
+** This
+*** What this is not
+    1. the function itself
+       - it does not refer to the function like an object, or store variables tied to the function, or any of the stuff you might think from Java
+    2. A cheat for sharing scopes
+       - There is absolutely no bridge between scope lookups and this
+       - use closures for scope lookups instead!
+*** What it is
+**** Call-site
+     call-site: the location in code where a function was called (not to be confused with where it was declared)
+**** Scope
+***** Default
+     - the this variable refers to the call site, so this.a will be the variable a somewhere in the scope of the function call
+       #+BEGIN_SRC js
+         function foo() {
+             console.log( this.a );
+         }
+
+         var a = 2;
+
+         foo(); // 2
+       #+END_SRC
+       
+    - strict mode does not allow this to refer to global scope
+      #+BEGIN_SRC js
+        function foo() {
+            "use strict";
+            console.log( this.a );
+        }
+        var a = 2;
+        foo(); // TypeError: `this` is `undefined`
+
+      #+END_SRC
+      
+***** Implicit
+      
+      This CAN refer to an object, like in java!! Except it's even cooler. Check this out:
+      #+BEGIN_SRC js
+        function foo() {
+            console.log( this.a );
+        }
+
+        var obj = {
+            a: 2,
+            foo: foo
+        };
+
+        obj.foo(); // 2
+      #+END_SRC
+
+      And it works like you'd expect:
+      #+BEGIN_SRC js
+        function foo() {
+            console.log( this.a );
+        }
+
+        var obj2 = {
+            a: 42,
+            foo: foo
+        };
+
+        var obj1 = {
+            a: 2,
+            obj2: obj2
+        };
+
+        obj1.obj2.foo(); // 42
+      #+END_SRC
