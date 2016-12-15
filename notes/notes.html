@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title></title>
+<meta name="author" content="(zookeeprr)"/>
+<style type="text/css">
+.underline { text-decoration: underline; }
+</style>
+<link rel="stylesheet" href="./reveal.js/css/reveal.css"/>
+
+<link rel="stylesheet" href="./reveal.js/css/theme/moon.css" id="theme"/>
+
+
+<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+<script>
+    if( window.location.search.match( /print-pdf/gi ) ) {
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = './reveal.js/css/print/pdf.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    }
+</script>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+<section id="sec-title-slide"><h2 class="author">zookeeprr</h2><p class="date">Created: 2016-12-14 Wed 23:49</p>
+</section>
+<section id="table-of-contents">
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#/slide-orgb1e739c">1. Scopes &amp; Closures</a>
+<ul>
+<li><a href="#/slide-orgc9a44fc">1.1. Scope</a>
+<ul>
+<li><a href="#/slide-org8c49bdb">1.1.1. Functions</a></li>
+<li><a href="#/slide-orgc7c3aa0">1.1.2. Vars</a></li>
+<li><a href="#/slide-org1a4da8c">1.1.3. Block Scoping</a></li>
+</ul>
+</li>
+<li><a href="#/slide-org2f9a4fb">1.2. Hoisting</a></li>
+<li><a href="#/slide-orgdebacca">1.3. Closures</a>
+<ul>
+<li><a href="#/slide-orga9cd739">1.3.1. Caveats to closure</a></li>
+<li><a href="#/slide-org28451e1">1.3.2. Modules</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#/slide-org9c8bd07">2. <i>this</i> &amp; Object Prototypes</a>
+<ul>
+<li><a href="#/slide-org745b804">2.1. This</a>
+<ul>
+<li><a href="#/slide-orgffdaa7a">2.1.1. What this is not</a></li>
+<li><a href="#/slide-orgbc073d8">2.1.2. What it is</a></li>
+</ul>
+</li>
+<li><a href="#/slide-org2da5be0">2.2. Objects</a>
+<ul>
+<li><a href="#/slide-orge2e4f58">2.2.1. 6 types:</a></li>
+<li><a href="#/slide-org2575ffb">2.2.2. Built in Objects:</a></li>
+<li><a href="#/slide-org0b6617f">2.2.3. Properties</a></li>
+<li><a href="#/slide-orgfa9ea50">2.2.4. Immutability</a></li>
+<li><a href="#/slide-org7deca91">2.2.5. Getters and Setters</a></li>
+<li><a href="#/slide-org795ee71">2.2.6. Mixins</a></li>
+</ul>
+</li>
+<li><a href="#/slide-org11de1fe">2.3. Prototypes</a>
+<ul>
+<li><a href="#/slide-org3815621">2.3.1. Prototype Chain</a></li>
+<li><a href="#/slide-orga8bc9b8">2.3.2. Object.prototype</a></li>
+<li><a href="#/slide-org7b0df43">2.3.3. Setting and Shadowing</a></li>
+<li><a href="#/slide-org9d17112">2.3.4. "Classes" and Prototypal Inheritance</a></li>
+</ul>
+</li>
+<li><a href="#/slide-org64403ec">2.4. Behavior Delegation - the alternative view on prototypes</a>
+<ul>
+<li><a href="#/slide-org0a87cba">2.4.1. Example: Class vs Behavior Delegation</a></li>
+</ul>
+</li>
+<li><a href="#/slide-orgf31da46">2.5. ES6 Classes</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</section>
+<section>
+<section id="slide-orgb1e739c">
+<h2 id="orgb1e739c"><span class="section-number-2">1</span> Scopes &amp; Closures</h2>
+<div class="outline-text-2" id="text-1">
+</div></section>
+<section id="slide-orgc9a44fc">
+<h3 id="orgc9a44fc"><span class="section-number-3">1.1</span> Scope</h3>
+<div class="outline-text-3" id="text-1-1">
+</div></section>
+<section id="slide-org8c49bdb">
+<h4 id="org8c49bdb"><span class="section-number-4">1.1.1</span> Functions</h4>
+<div class="outline-text-4" id="text-1-1-1">
+</div><ol class="org-ol"><li><a id="org2f2212d"></a>Callbacks<br  /><ul>
+<li>Always name callback function expressions
+<ul>
+<li>For debug and readability purposes</li>
+
+</ul></li>
+
+</ul></li>
+<li><a id="org1421f76"></a>IIFE - Immediately Invoked Function Expression<br  /><ul>
+<li><p>
+Call an anonymous function expression right after declaring it
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #DCDCCC;">(</span><span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #BFEBBF;">(){</span> .. <span style="color: #BFEBBF;">}</span><span style="color: #DCDCCC;">)()</span>
+</pre>
+</div>
+<p>
+or
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #DCDCCC;">(</span><span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #BFEBBF;">(){</span> .. <span style="color: #BFEBBF;">}()</span><span style="color: #DCDCCC;">)</span>
+</pre>
+</div>
+<p>
+(both work the same)
+</p></li>
+
+</ul></li></ol>
+</section>
+<section id="slide-orgc7c3aa0">
+<h4 id="orgc7c3aa0"><span class="section-number-4">1.1.2</span> Vars</h4>
+<ul>
+<li>let for block scoping in ES6</li>
+<li>const for block scoping and constant value in ES6</li>
+
+</ul>
+</section>
+<section id="slide-org1a4da8c">
+<h4 id="org1a4da8c"><span class="section-number-4">1.1.3</span> Block Scoping</h4>
+<ul>
+<li>Not allowed most anywhere in JS</li>
+
+</ul>
+<ol class="org-ol"><li><a id="org26f6118"></a>Allowed in:<br  /><ul>
+<li>Catch blocks are block scoped by default</li>
+<li>let variable - ES6
+<ul>
+<li>like var, but block scope, not function scope</li>
+<li>no hoisting</li>
+<li>Can be used to help in garbage collection (really big vars in small blocks don't hold memory for long)</li>
+
+</ul></li>
+<li>const variable
+<ul>
+<li>like let, but final</li>
+
+</ul></li>
+
+</ul></li></ol>
+</section>
+<section id="slide-org2f9a4fb">
+<h3 id="org2f9a4fb"><span class="section-number-3">1.2</span> Hoisting</h3>
+<ul>
+<li>All vars are hoisted</li>
+<li>functions are hoisted first
+<ul>
+<li>The last function will be called instead of the first var if both have same name, regardless of placement</li>
+<li>The last of two functions will be called when they share a name</li>
+
+</ul></li>
+
+</ul>
+</section>
+<section id="slide-orgdebacca">
+<h3 id="orgdebacca"><span class="section-number-3">1.3</span> Closures</h3>
+<ul>
+<li><p>
+Closure is when a function is able to remember and access its lexical scope even when that function is executing outside its lexical scope.
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">function</span> <span style="color: #93E0E3;">foo</span><span style="color: #DCDCCC;">()</span> <span style="color: #DCDCCC;">{</span>
+  <span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">a</span> = <span style="color: #BFEBBF;">2</span>;
+
+  <span style="color: #F0DFAF; font-weight: bold;">function</span> <span style="color: #93E0E3;">bar</span><span style="color: #BFEBBF;">()</span> <span style="color: #BFEBBF;">{</span>
+    console.log<span style="color: #D0BF8F;">(</span> a <span style="color: #D0BF8F;">)</span>;
+    <span style="color: #BFEBBF;">}</span>
+
+  <span style="color: #F0DFAF; font-weight: bold;">return</span> bar;
+<span style="color: #DCDCCC;">}</span>
+
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">baz</span> = foo<span style="color: #DCDCCC;">()</span>;
+
+baz<span style="color: #DCDCCC;">()</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">2 -- Whoa, closure was just observed, man.</span>
+</pre>
+</div>
+<ul>
+<li>check it:
+<ol>
+<li>foo returns bar to baz, passing it as a value</li>
+<li>bar "lives on" in a sense, even beyond its scope, because it is still being referenced by baz</li>
+<li>Along with bar the function living on, its scope lives on alongside it. In a sense, it brings the environment it was declared in along with it so it can feel comfy outside of its scope.</li>
+<li>Even well after foo has been executed, var a still exists. It is inexorably tied to anything that references bar</li>
+
+</ol></li>
+<li>IIFE can be seen as an example of closure when there is a function inside the function expression</li>
+
+</ul></li>
+
+</ul>
+</section>
+<section id="slide-orga9cd739">
+<h4 id="orga9cd739"><span class="section-number-4">1.3.1</span> Caveats to closure</h4>
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">for</span> <span style="color: #DCDCCC;">(</span><span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">i</span>=<span style="color: #BFEBBF;">1</span>; i&lt;=<span style="color: #BFEBBF;">5</span>; i++<span style="color: #DCDCCC;">)</span> <span style="color: #DCDCCC;">{</span>
+   setTimeout<span style="color: #BFEBBF;">(</span> <span style="color: #F0DFAF; font-weight: bold;">function</span> timer<span style="color: #D0BF8F;">(){</span>
+       console.log<span style="color: #93E0E3;">(</span> i <span style="color: #93E0E3;">)</span>;
+   <span style="color: #D0BF8F;">}</span>, i*<span style="color: #BFEBBF;">1000</span> <span style="color: #BFEBBF;">)</span>;
+<span style="color: #DCDCCC;">}</span>
+</pre>
+</div>
+<p>
+6 is printed 5 times. timer() is running 1000 seconds after being called, 6 times over. By the time timer() runs, the for loop will be done, and the i that it was instantiated with will be at 6. each timer() function shares the same scope, and thus the same i.
+</p>
+
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">for</span> <span style="color: #DCDCCC;">(</span><span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">i</span>=<span style="color: #BFEBBF;">1</span>; i&lt;=<span style="color: #BFEBBF;">5</span>; i++<span style="color: #DCDCCC;">)</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #BFEBBF;">(</span><span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #D0BF8F;">(){</span>
+        <span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">j</span> = i;
+        setTimeout<span style="color: #93E0E3;">(</span> <span style="color: #F0DFAF; font-weight: bold;">function</span> timer<span style="color: #9FC59F;">(){</span>
+            console.log<span style="color: #94BFF3;">(</span> j <span style="color: #94BFF3;">)</span>;
+        <span style="color: #9FC59F;">}</span>, j*<span style="color: #BFEBBF;">1000</span> <span style="color: #93E0E3;">)</span>;
+    <span style="color: #D0BF8F;">}</span><span style="color: #BFEBBF;">)()</span>;
+<span style="color: #DCDCCC;">}</span>
+</pre>
+</div>
+<p>
+1 2 3 4 5 is printed, as j is necessarily bound to i in the function, which then is passed to timer().
+The IIFE "blocks" the other iterations' timer() function from getting in the way of each other, as it is specific to the iteration
+</p>
+
+
+<p>
+Let and block scoping can fix alllllll this nonsense
+</p>
+
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">for</span> <span style="color: #DCDCCC;">(</span><span style="color: #F0DFAF; font-weight: bold;">let</span> <span style="color: #DFAF8F;">i</span>=<span style="color: #BFEBBF;">1</span>; i&lt;=<span style="color: #BFEBBF;">5</span>; i++<span style="color: #DCDCCC;">)</span> <span style="color: #DCDCCC;">{</span>
+    setTimeout<span style="color: #BFEBBF;">(</span> <span style="color: #F0DFAF; font-weight: bold;">function</span> timer<span style="color: #D0BF8F;">(){</span>
+        console.log<span style="color: #93E0E3;">(</span> i <span style="color: #93E0E3;">)</span>;
+    <span style="color: #D0BF8F;">}</span>, i*<span style="color: #BFEBBF;">1000</span> <span style="color: #BFEBBF;">)</span>;
+<span style="color: #DCDCCC;">}</span>
+</pre>
+</div>
+</section>
+<section id="slide-org28451e1">
+<h4 id="org28451e1"><span class="section-number-4">1.3.2</span> Modules</h4>
+<ul>
+<li>modules make use of closure in a similar way to java and class variables</li>
+<li>A module is a function that acts like a class, i.e. one that cannot do anything on its own, but can perform actions once instantiated</li>
+
+</ul>
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">function</span> <span style="color: #93E0E3;">CoolModule</span><span style="color: #DCDCCC;">()</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">something</span> = <span style="color: #CC9393;">"cool"</span>;
+    <span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">another</span> = <span style="color: #BFEBBF;">[</span><span style="color: #BFEBBF;">1</span>, <span style="color: #BFEBBF;">2</span>, <span style="color: #BFEBBF;">3</span><span style="color: #BFEBBF;">]</span>;
+
+    <span style="color: #F0DFAF; font-weight: bold;">function</span> <span style="color: #93E0E3;">doSomething</span><span style="color: #BFEBBF;">()</span> <span style="color: #BFEBBF;">{</span>
+        console.log<span style="color: #D0BF8F;">(</span> something <span style="color: #D0BF8F;">)</span>;
+    <span style="color: #BFEBBF;">}</span>
+
+    <span style="color: #F0DFAF; font-weight: bold;">function</span> <span style="color: #93E0E3;">doAnother</span><span style="color: #BFEBBF;">()</span> <span style="color: #BFEBBF;">{</span>
+        console.log<span style="color: #D0BF8F;">(</span> another.join<span style="color: #93E0E3;">(</span> <span style="color: #CC9393;">" ! "</span> <span style="color: #93E0E3;">)</span> <span style="color: #D0BF8F;">)</span>;
+    <span style="color: #BFEBBF;">}</span>
+
+    <span style="color: #F0DFAF; font-weight: bold;">return</span> <span style="color: #BFEBBF;">{</span>
+        doSomething: doSomething,
+        doAnother: doAnother
+    <span style="color: #BFEBBF;">}</span>;
+<span style="color: #DCDCCC;">}</span>
+
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">foo</span> = CoolModule<span style="color: #DCDCCC;">()</span>;
+
+foo.doSomething<span style="color: #DCDCCC;">()</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">cool</span>
+foo.doAnother<span style="color: #DCDCCC;">()</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">1 ! 2 ! 3</span>
+</pre>
+</div>
+
+<ul>
+<li>ES6 takes it all a step further, making files modules
+<ul>
+<li>The following imports hello from the file bar.js:</li>
+
+</ul></li>
+
+</ul>
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">import</span> hello from bar
+</pre>
+</div>
+
+</section>
+</section>
+<section>
+<section id="slide-org9c8bd07">
+<h2 id="org9c8bd07"><span class="section-number-2">2</span> <i>this</i> &amp; Object Prototypes</h2>
+<div class="outline-text-2" id="text-2">
+</div></section>
+<section id="slide-org745b804">
+<h3 id="org745b804"><span class="section-number-3">2.1</span> This</h3>
+<div class="outline-text-3" id="text-2-1">
+</div></section>
+<section id="slide-orgffdaa7a">
+<h4 id="orgffdaa7a"><span class="section-number-4">2.1.1</span> What this is not</h4>
+<ol>
+<li>the function itself
+<ul>
+<li>it does not refer to the function like an object, or store variables tied to the function, or any of the stuff you might think from Java</li>
+
+</ul></li>
+<li>A cheat for sharing scopes
+<ul>
+<li>There is absolutely no bridge between scope lookups and this</li>
+<li>use closures for scope lookups instead!</li>
+
+</ul></li>
+
+</ol>
+</section>
+<section id="slide-orgbc073d8">
+<h4 id="orgbc073d8"><span class="section-number-4">2.1.2</span> What it is</h4>
+<div class="outline-text-4" id="text-2-1-2">
+</div><ol class="org-ol"><li><a id="org31dc496"></a>Call-site<br  /><p>
+call-site: the location in code where a function was called (not to be confused with where it was declared)
+</p></li>
+<li><a id="org151c1c8"></a>Binding Variations<br  /><ol class="org-ol"><li><a id="orga5b5f58"></a>Default<br  /><ul>
+<li><p>
+the this variable refers to the call site, so this.a will be the variable a somewhere in the scope of the function call
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">function</span> <span style="color: #93E0E3;">foo</span><span style="color: #DCDCCC;">()</span> <span style="color: #DCDCCC;">{</span>
+    console.log<span style="color: #BFEBBF;">(</span> <span style="color: #BFEBBF;">this</span>.a <span style="color: #BFEBBF;">)</span>;
+<span style="color: #DCDCCC;">}</span>
+
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">a</span> = <span style="color: #BFEBBF;">2</span>;
+
+foo<span style="color: #DCDCCC;">()</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">2</span>
+</pre>
+</div></li>
+
+<li><p>
+strict mode does not allow this to refer to global scope
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">function</span> <span style="color: #93E0E3;">foo</span><span style="color: #DCDCCC;">()</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #CC9393;">"use strict"</span>;
+    console.log<span style="color: #BFEBBF;">(</span> <span style="color: #BFEBBF;">this</span>.a <span style="color: #BFEBBF;">)</span>;
+<span style="color: #DCDCCC;">}</span>
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">a</span> = <span style="color: #BFEBBF;">2</span>;
+foo<span style="color: #DCDCCC;">()</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">TypeError: `this` is `undefined`</span>
+</pre>
+</div></li>
+
+</ul></li>
+
+<li><a id="org43bf1ca"></a>Implicit<br  /><p>
+This CAN refer to an object, like in java!! Except it's even cooler. Check this out:
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">function</span> <span style="color: #93E0E3;">foo</span><span style="color: #DCDCCC;">()</span> <span style="color: #DCDCCC;">{</span>
+    console.log<span style="color: #BFEBBF;">(</span> <span style="color: #BFEBBF;">this</span>.a <span style="color: #BFEBBF;">)</span>;
+<span style="color: #DCDCCC;">}</span>
+
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">obj</span> = <span style="color: #DCDCCC;">{</span>
+    a: <span style="color: #BFEBBF;">2</span>,
+    foo: foo
+<span style="color: #DCDCCC;">}</span>;
+
+obj.foo<span style="color: #DCDCCC;">()</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">2</span>
+</pre>
+</div>
+
+<p>
+And it works like you'd expect:
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">function</span> <span style="color: #93E0E3;">foo</span><span style="color: #DCDCCC;">()</span> <span style="color: #DCDCCC;">{</span>
+    console.log<span style="color: #BFEBBF;">(</span> <span style="color: #BFEBBF;">this</span>.a <span style="color: #BFEBBF;">)</span>;
+<span style="color: #DCDCCC;">}</span>
+
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">obj2</span> = <span style="color: #DCDCCC;">{</span>
+    a: <span style="color: #BFEBBF;">42</span>,
+    foo: foo
+<span style="color: #DCDCCC;">}</span>;
+
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">obj1</span> = <span style="color: #DCDCCC;">{</span>
+    a: <span style="color: #BFEBBF;">2</span>,
+    obj2: obj2
+<span style="color: #DCDCCC;">}</span>;
+
+obj1.obj2.foo<span style="color: #DCDCCC;">()</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">42</span>
+</pre>
+</div></li>
+
+<li><a id="orgd38854b"></a>Explicit<br  /><ul>
+<li>binding the function in the object declaration can get a little messy</li>
+<li>To be certain that "this" refers to a specific option, you can explicitly bind the function and the object using the call or apply methods</li>
+<li>foo.call(obj) will make certain that "this" in foo refers to obj.</li>
+
+</ul>
+<ol class="org-ol"><li><a id="org8793db2"></a>Hard binding<br  /><ul>
+<li>explicit binding can still act funny sometimes. Hard binding is the end-all answer</li>
+<li>hard binding uses a second function to bind foo to obj (in our example)</li>
+
+</ul>
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">function</span> <span style="color: #93E0E3;">foo</span><span style="color: #DCDCCC;">(</span><span style="color: #DFAF8F;">something</span><span style="color: #DCDCCC;">)</span> <span style="color: #DCDCCC;">{</span>
+    console.log<span style="color: #BFEBBF;">(</span> <span style="color: #BFEBBF;">this</span>.a, something <span style="color: #BFEBBF;">)</span>;
+    <span style="color: #F0DFAF; font-weight: bold;">return</span> <span style="color: #BFEBBF;">this</span>.a + something;
+<span style="color: #DCDCCC;">}</span>
+
+<span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">simple `bind` helper</span>
+<span style="color: #F0DFAF; font-weight: bold;">function</span> <span style="color: #93E0E3;">bind</span><span style="color: #DCDCCC;">(</span><span style="color: #DFAF8F;">fn</span>, <span style="color: #DFAF8F;">obj</span><span style="color: #DCDCCC;">)</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #F0DFAF; font-weight: bold;">return</span> <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #BFEBBF;">()</span> <span style="color: #BFEBBF;">{</span>
+        <span style="color: #F0DFAF; font-weight: bold;">return</span> fn.apply<span style="color: #D0BF8F;">(</span> obj, <span style="color: #BFEBBF;">arguments</span> <span style="color: #D0BF8F;">)</span>;
+    <span style="color: #BFEBBF;">}</span>;
+<span style="color: #DCDCCC;">}</span>
+
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">obj</span> = <span style="color: #DCDCCC;">{</span>
+    a: <span style="color: #BFEBBF;">2</span>
+<span style="color: #DCDCCC;">}</span>;
+
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">bar</span> = bind<span style="color: #DCDCCC;">(</span> foo, obj <span style="color: #DCDCCC;">)</span>;
+
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">b</span> = bar<span style="color: #DCDCCC;">(</span> <span style="color: #BFEBBF;">3</span> <span style="color: #DCDCCC;">)</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">2 3</span>
+console.log<span style="color: #DCDCCC;">(</span> b <span style="color: #DCDCCC;">)</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">5</span>
+</pre>
+</div>
+<ul>
+<li><p>
+This bind function is included in ES5 and doesn't need to be rewritten
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">function</span> <span style="color: #93E0E3;">foo</span><span style="color: #DCDCCC;">(</span><span style="color: #DFAF8F;">something</span><span style="color: #DCDCCC;">)</span> <span style="color: #DCDCCC;">{</span>
+    console.log<span style="color: #BFEBBF;">(</span> <span style="color: #BFEBBF;">this</span>.a, something <span style="color: #BFEBBF;">)</span>;
+    <span style="color: #F0DFAF; font-weight: bold;">return</span> <span style="color: #BFEBBF;">this</span>.a + something;
+<span style="color: #DCDCCC;">}</span>
+
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">obj</span> = <span style="color: #DCDCCC;">{</span>
+    a: <span style="color: #BFEBBF;">2</span>
+<span style="color: #DCDCCC;">}</span>;
+
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">bar</span> = foo.bind<span style="color: #DCDCCC;">(</span> obj <span style="color: #DCDCCC;">)</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">Boom</span>
+
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">b</span> = bar<span style="color: #DCDCCC;">(</span> <span style="color: #BFEBBF;">3</span> <span style="color: #DCDCCC;">)</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">2 3</span>
+console.log<span style="color: #DCDCCC;">(</span> b <span style="color: #DCDCCC;">)</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">5</span>
+</pre>
+</div></li>
+
+<li>in ES6, the hard-bound function has a .name attribute for debugging purposes</li>
+
+</ul></li></ol></li>
+
+<li><a id="orgab7f676"></a>"new" Binding<br  /><ul>
+<li>there are no real constructors in js</li>
+<li>constructors are simply a function preceded by "new"</li>
+<li>"new &lt;function&gt;" makes &lt;function&gt; into a constructor, runs it, and returns a prototype object</li>
+<li><p>
+The new object is now the this for that function
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">function</span> <span style="color: #93E0E3;">foo</span><span style="color: #DCDCCC;">(</span><span style="color: #DFAF8F;">a</span><span style="color: #DCDCCC;">)</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #BFEBBF;">this</span>.a = a;
+<span style="color: #DCDCCC;">}</span>
+
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">bar</span> = <span style="color: #F0DFAF; font-weight: bold;">new</span> <span style="color: #7CB8BB;">foo</span><span style="color: #DCDCCC;">(</span> <span style="color: #BFEBBF;">2</span> <span style="color: #DCDCCC;">)</span>;
+console.log<span style="color: #DCDCCC;">(</span> bar.a <span style="color: #DCDCCC;">)</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">2</span>
+</pre>
+</div></li>
+
+</ul></li>
+<li><a id="orgb55a720"></a>Precedence<br  /><ol>
+<li>new</li>
+<li>explicit/hard</li>
+<li>implicit</li>
+<li>default</li>
+
+</ol>
+<ol class="org-ol"><li><a id="org33a299d"></a>From the book:<br  /><ol>
+<li><p>
+Is the function called with new (new binding)? If so, this is the newly constructed object.
+</p>
+
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">bar</span> = <span style="color: #F0DFAF; font-weight: bold;">new</span> <span style="color: #7CB8BB;">foo</span><span style="color: #DCDCCC;">()</span>
+</pre>
+</div></li>
+
+<li><p>
+Is the function called with call or apply (explicit binding), even hidden inside a bind hard binding? If so, this is the explicitly specified object.
+</p>
+
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">bar</span> = foo.call<span style="color: #DCDCCC;">(</span> obj2 <span style="color: #DCDCCC;">)</span>
+</pre>
+</div></li>
+
+<li><p>
+Is the function called with a context (implicit binding), otherwise known as an owning or containing object? If so, this is that context object.
+</p>
+
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">bar</span> = obj1.foo<span style="color: #DCDCCC;">()</span>
+</pre>
+</div></li>
+
+<li><p>
+Otherwise, default the this (default binding). If in strict mode, pick undefined, otherwise pick the global object.
+</p>
+
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">bar</span> = foo<span style="color: #DCDCCC;">()</span>
+</pre>
+</div></li>
+
+</ol></li></ol></li>
+<li><a id="org0d30bd8"></a>ES6 Caveat - Arrow function<br  /><ul>
+<li>An arrow function allows functions to inherit "this" from up a lexical layer, whether that be another function or global scope</li>
+<li><p>
+uses =&gt; instead of "function"
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">function</span> <span style="color: #93E0E3;">foo</span><span style="color: #DCDCCC;">()</span> <span style="color: #DCDCCC;">{</span>
+    setTimeout<span style="color: #BFEBBF;">(</span><span style="color: #D0BF8F;">()</span> =&gt; <span style="color: #D0BF8F;">{</span>
+        <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">`this` here is lexically adopted from `foo()`</span>
+        console.log<span style="color: #93E0E3;">(</span> <span style="color: #BFEBBF;">this</span>.a <span style="color: #93E0E3;">)</span>;
+    <span style="color: #D0BF8F;">}</span>,<span style="color: #BFEBBF;">100</span><span style="color: #BFEBBF;">)</span>;
+<span style="color: #DCDCCC;">}</span>
+
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">obj</span> = <span style="color: #DCDCCC;">{</span>
+    a: <span style="color: #BFEBBF;">2</span>
+<span style="color: #DCDCCC;">}</span>;
+
+foo.call<span style="color: #DCDCCC;">(</span> obj <span style="color: #DCDCCC;">)</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">2</span>
+</pre>
+</div></li>
+
+</ul></li></ol></li></ol>
+</section>
+<section id="slide-org2da5be0">
+<h3 id="org2da5be0"><span class="section-number-3">2.2</span> Objects</h3>
+<div class="outline-text-3" id="text-2-2">
+</div></section>
+<section id="slide-orge2e4f58">
+<h4 id="orge2e4f58"><span class="section-number-4">2.2.1</span> 6 types:</h4>
+<ol>
+<li>string</li>
+<li>number</li>
+<li>boolean</li>
+<li>null</li>
+<li>undefined</li>
+<li>object</li>
+
+</ol>
+</section>
+<section id="slide-org2575ffb">
+<h4 id="org2575ffb"><span class="section-number-4">2.2.2</span> Built in Objects:</h4>
+<ol>
+<li>String</li>
+<li>Number</li>
+<li>Boolean</li>
+<li>Object</li>
+<li>Function</li>
+<li>Array</li>
+<li>Date</li>
+<li>RegExp</li>
+<li><p>
+Error
+</p>
+
+<p>
+primary types like string will be automatically cast to String when String functions are called on them
+</p></li>
+
+</ol>
+</section>
+<section id="slide-org0b6617f">
+<h4 id="org0b6617f"><span class="section-number-4">2.2.3</span> Properties</h4>
+<ul>
+<li>property names are always strings</li>
+<li>There is no method property, as methods are necessarily tied to their objects. While an object in js can use a function, it cannot tie the function to itself.</li>
+<li>Arrays are like objects, but they have numerical properties
+<ul>
+<li>they can have non-numerical properties, but it can get messy</li>
+
+</ul></li>
+
+</ul>
+<ol class="org-ol"><li><a id="org2d3a22f"></a>Copying Objects and Properties<br  /><ul>
+<li>Shallow copy: copy one object deep (keep references of other objects contained in the copied objects)</li>
+<li>Deep copy: copy all the way down, creating new references to new objects until you get to only primary types</li>
+
+</ul>
+<ol class="org-ol"><li><a id="orgd0709b0"></a>Solutions:<br  /><ol>
+<li>To JSON and Back:</li>
+
+</ol>
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">newObj</span> = JSON.parse<span style="color: #DCDCCC;">(</span> JSON.stringify<span style="color: #BFEBBF;">(</span> someObj <span style="color: #BFEBBF;">)</span> <span style="color: #DCDCCC;">)</span>;
+</pre>
+</div>
+<ol>
+<li><p>
+ES6:
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #5F7F5F;">/* </span><span style="color: #7F9F7F;">&lt;target&gt; = Object.assign(&lt;target&gt;,&lt;source&gt;); */</span>
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">newObj</span> = Object.assign<span style="color: #DCDCCC;">(</span> <span style="color: #BFEBBF;">{}</span>, myObject <span style="color: #DCDCCC;">)</span>;
+</pre>
+</div>
+<ul>
+<li>Creates a shallow copy, keeping any object references from the copied object the same</li>
+
+</ul></li>
+
+</ol></li></ol></li>
+<li><a id="org07620e1"></a>Property Descriptors<br  /><div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">myObject</span> = <span style="color: #DCDCCC;">{</span>
+    a: <span style="color: #BFEBBF;">2</span>
+<span style="color: #DCDCCC;">}</span>;
+
+Object.getOwnPropertyDescriptor<span style="color: #DCDCCC;">(</span> myObject, <span style="color: #CC9393;">"a"</span> <span style="color: #DCDCCC;">)</span>;
+<span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">{</span>
+<span style="color: #5F7F5F;">//    </span><span style="color: #7F9F7F;">value: 2,</span>
+<span style="color: #5F7F5F;">//    </span><span style="color: #7F9F7F;">writable: true,</span>
+<span style="color: #5F7F5F;">//    </span><span style="color: #7F9F7F;">configurable: true</span>
+<span style="color: #5F7F5F;">//    </span><span style="color: #7F9F7F;">enumerable: true,</span>
+<span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">}</span>
+</pre>
+</div>
+<ol class="org-ol"><li><a id="org97e90f6"></a>value<br  /><p>
+The value of the property. Can be set with either:
+</p>
+<ol>
+<li><p>
+dot syntax
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-js">myobj.a = <span style="color: #BFEBBF;">2</span>;
+</pre>
+</div></li>
+<li><p>
+bracket syntax
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-js">myobj<span style="color: #DCDCCC;">[</span><span style="color: #CC9393;">"a"</span><span style="color: #DCDCCC;">]</span> = <span style="color: #BFEBBF;">2</span>;
+</pre>
+</div></li>
+
+</ol></li>
+<li><a id="org88de668"></a>writable<br  /><p>
+The ability to change the value after it is set. Reassignments fail silently when not in strict mode.
+</p></li>
+
+<li><a id="org2af309b"></a>configurable<br  /><p>
+The ability to change the property descriptor. Cannot be undone once set (as you can't change the descriptor&#x2026;).
+</p></li>
+<li><a id="org64a5aeb"></a>enumerable<br  /><p>
+Whether or not the property comes up in "for .. in" loops.
+</p></li></ol></li></ol>
+
+</section>
+<section id="slide-orgfa9ea50">
+<h4 id="orgfa9ea50"><span class="section-number-4">2.2.4</span> Immutability</h4>
+<div class="outline-text-4" id="text-2-2-4">
+</div><ol class="org-ol"><li><a id="org0d5f676"></a>Object Constant<br  /><p>
+By combining writable:false and configurable:false, you can essentially create a constant (cannot be changed, redefined or deleted) as an object property.
+</p></li>
+
+<li><a id="orgd426506"></a>Prevent Extensions<br  /><p>
+If you want to prevent an object from having new properties added to it, but otherwise leave the rest of the object's properties alone, call Object.preventExtensions(..)
+</p></li>
+
+<li><a id="orgaaf7fc0"></a>Seal<br  /><p>
+Object.seal(..) creates a "sealed" object, which means it takes an existing object and essentially calls Object.preventExtensions(..) on it, but also marks all its existing properties as configurable:false.
+</p></li>
+
+<li><a id="org38177b2"></a>Freeze<br  /><p>
+Object.freeze(..) creates a frozen object, which means it takes an existing object and essentially calls Object.seal(..) on it, but it also marks all "data accessor" properties as writable:false, so that their values cannot be changed.
+</p></li>
+
+<li><a id="org0e937c5"></a>Deep Freeze<br  /><p>
+call Object.freeze(..) on the object, and then recursively iterating over all objects it references (which would have been unaffected thus far), and calling Object.freeze(..) on them as well.
+</p></li></ol>
+</section>
+<section id="slide-org7deca91">
+<h4 id="org7deca91"><span class="section-number-4">2.2.5</span> Getters and Setters</h4>
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">myObject</span> = <span style="color: #DCDCCC;">{</span>
+    <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">define a getter for `a`</span>
+    get a<span style="color: #BFEBBF;">()</span> <span style="color: #BFEBBF;">{</span>
+        <span style="color: #F0DFAF; font-weight: bold;">return</span> <span style="color: #BFEBBF;">this</span>._a_;
+    <span style="color: #BFEBBF;">}</span>,
+
+    <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">define a setter for `a`</span>
+    set a<span style="color: #BFEBBF;">(</span>val<span style="color: #BFEBBF;">)</span> <span style="color: #BFEBBF;">{</span>
+        <span style="color: #BFEBBF;">this</span>._a_ = val * <span style="color: #BFEBBF;">2</span>;
+    <span style="color: #BFEBBF;">}</span>
+<span style="color: #DCDCCC;">}</span>;
+
+myObject.a = <span style="color: #BFEBBF;">2</span>;
+
+myObject.a; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">4</span>
+</pre>
+</div>
+
+</section>
+<section id="slide-org795ee71">
+<h4 id="org795ee71"><span class="section-number-4">2.2.6</span> Mixins</h4>
+<p>
+Since objects are not classes and do not employ polymorphism or inheritance, mixins are the hacky solution.
+</p>
+
+<ol class="org-ol"><li><a id="org92e2842"></a>Explicit Mixins<br  /><div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">vastly simplified `mixin(..)` example:</span>
+<span style="color: #F0DFAF; font-weight: bold;">function</span> <span style="color: #93E0E3;">mixin</span><span style="color: #DCDCCC;">(</span> <span style="color: #DFAF8F;">sourceObj</span>, <span style="color: #DFAF8F;">targetObj</span> <span style="color: #DCDCCC;">)</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #F0DFAF; font-weight: bold;">for</span> <span style="color: #BFEBBF;">(</span><span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">key</span> <span style="color: #F0DFAF; font-weight: bold;">in</span> sourceObj<span style="color: #BFEBBF;">)</span> <span style="color: #BFEBBF;">{</span>
+        <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">only copy if not already present</span>
+        <span style="color: #F0DFAF; font-weight: bold;">if</span> <span style="color: #D0BF8F;">(</span>!<span style="color: #93E0E3;">(</span>key <span style="color: #F0DFAF; font-weight: bold;">in</span> targetObj<span style="color: #93E0E3;">)</span><span style="color: #D0BF8F;">)</span> <span style="color: #D0BF8F;">{</span>
+            targetObj<span style="color: #93E0E3;">[</span>key<span style="color: #93E0E3;">]</span> = sourceObj<span style="color: #93E0E3;">[</span>key<span style="color: #93E0E3;">]</span>;
+        <span style="color: #D0BF8F;">}</span>
+    <span style="color: #BFEBBF;">}</span>
+
+    <span style="color: #F0DFAF; font-weight: bold;">return</span> targetObj;
+<span style="color: #DCDCCC;">}</span>
+
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">Vehicle</span> = <span style="color: #DCDCCC;">{</span>
+    engines: <span style="color: #BFEBBF;">1</span>,
+
+    <span style="color: #93E0E3;">ignition</span>: <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #BFEBBF;">()</span> <span style="color: #BFEBBF;">{</span>
+        console.log<span style="color: #D0BF8F;">(</span> <span style="color: #CC9393;">"Turning on my engine."</span> <span style="color: #D0BF8F;">)</span>;
+    <span style="color: #BFEBBF;">}</span>,
+
+    <span style="color: #93E0E3;">drive</span>: <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #BFEBBF;">()</span> <span style="color: #BFEBBF;">{</span>
+        <span style="color: #BFEBBF;">this</span>.ignition<span style="color: #D0BF8F;">()</span>;
+        console.log<span style="color: #D0BF8F;">(</span> <span style="color: #CC9393;">"Steering and moving forward!"</span> <span style="color: #D0BF8F;">)</span>;
+    <span style="color: #BFEBBF;">}</span>
+<span style="color: #DCDCCC;">}</span>;
+
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">Car</span> = mixin<span style="color: #DCDCCC;">(</span> Vehicle, <span style="color: #BFEBBF;">{</span>
+    wheels: <span style="color: #BFEBBF;">4</span>,
+
+    <span style="color: #93E0E3;">drive</span>: <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #D0BF8F;">()</span> <span style="color: #D0BF8F;">{</span>
+        Vehicle.drive.call<span style="color: #93E0E3;">(</span> <span style="color: #BFEBBF;">this</span> <span style="color: #93E0E3;">)</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">make sure that "this" is Car, not Vehicle</span>
+        console.log<span style="color: #93E0E3;">(</span> <span style="color: #CC9393;">"Rolling on all "</span> + <span style="color: #BFEBBF;">this</span>.wheels + <span style="color: #CC9393;">" wheels!"</span> <span style="color: #93E0E3;">)</span>;
+    <span style="color: #D0BF8F;">}</span>
+<span style="color: #BFEBBF;">}</span> <span style="color: #DCDCCC;">)</span>;
+</pre>
+</div></li>
+
+<li><a id="org4587f8d"></a>Implicit Mixins<br  /><div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">Something</span> = <span style="color: #DCDCCC;">{</span>
+    <span style="color: #93E0E3;">cool</span>: <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #BFEBBF;">()</span> <span style="color: #BFEBBF;">{</span>
+        <span style="color: #BFEBBF;">this</span>.greeting = <span style="color: #CC9393;">"Hello World"</span>;
+        <span style="color: #BFEBBF;">this</span>.count = <span style="color: #BFEBBF;">this</span>.count ? <span style="color: #BFEBBF;">this</span>.count + <span style="color: #BFEBBF;">1</span> : <span style="color: #BFEBBF;">1</span>;
+    <span style="color: #BFEBBF;">}</span>
+<span style="color: #DCDCCC;">}</span>;
+
+Something.cool<span style="color: #DCDCCC;">()</span>;
+Something.greeting; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">"Hello World"</span>
+Something.count; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">1</span>
+
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">Another</span> = <span style="color: #DCDCCC;">{</span>
+    <span style="color: #93E0E3;">cool</span>: <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #BFEBBF;">()</span> <span style="color: #BFEBBF;">{</span>
+        <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">implicit mixin of `Something` to `Another`</span>
+        Something.cool.call<span style="color: #D0BF8F;">(</span> <span style="color: #BFEBBF;">this</span> <span style="color: #D0BF8F;">)</span>;
+    <span style="color: #BFEBBF;">}</span>
+<span style="color: #DCDCCC;">}</span>;
+
+Another.cool<span style="color: #DCDCCC;">()</span>;
+Another.greeting; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">"Hello World"</span>
+Another.count; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">1 (not shared state with `Something`)</span>
+</pre>
+</div></li>
+<li><a id="org9438a20"></a>Basically, just don't even bother with forcing OO concepts into js objects. If you want to write OO, use java or ES6, but this is just gross.<br  /></li></ol>
+
+</section>
+<section id="slide-org11de1fe">
+<h3 id="org11de1fe"><span class="section-number-3">2.3</span> Prototypes</h3>
+<div class="outline-text-3" id="text-2-3">
+</div></section>
+<section id="slide-org3815621">
+<h4 id="org3815621"><span class="section-number-4">2.3.1</span> Prototype Chain</h4>
+<ul>
+<li>Basically, how js looks up properties in objects.</li>
+<li>Similar to Inheritance, if a property isn't declared in one object, the interpreter will look "up" the chain to see if it's declared elsewhere.</li>
+
+</ul>
+</section>
+<section id="slide-orga8bc9b8">
+<h4 id="orga8bc9b8"><span class="section-number-4">2.3.2</span> Object.prototype</h4>
+<ul>
+<li>The super-prototype to all prototypes (the Object of javascript)</li>
+
+</ul>
+</section>
+<section id="slide-org7b0df43">
+<h4 id="org7b0df43"><span class="section-number-4">2.3.3</span> Setting and Shadowing</h4>
+<ul>
+<li>Setting a property may cause shadowing if the same property exists in an object higher up the prototype chain
+<ul>
+<li>consider this:
+<ol>
+<li>myObject is down the prototype chain from youObject</li>
+<li>yourObject contains a property 'foo'</li>
+<li>I set a 'foo' property on myObject by "myObject.foo = 2;"</li>
+<li>myObject's 'foo' <i>shadows</i> youObject's 'foo'</li>
+
+</ol></li>
+
+</ul></li>
+<li>Shadowing doesn't always occur like you think.
+<ul>
+<li>If you want to be sure to shadow, use Object.defineProperty(..) to add properties.</li>
+
+</ul></li>
+
+</ul>
+
+
+<p>
+if myObject set the property foo, and is down the prototype chain from yourObject( which already had a foo property) myObject
+</p>
+</section>
+<section id="slide-org9d17112">
+<h4 id="org9d17112"><span class="section-number-4">2.3.4</span> "Classes" and Prototypal Inheritance</h4>
+<p>
+So mixins aren't classes and objects aren't classes but there's still constructors which implies there's classes so what's up? Enter "Prototypal Inheritance"
+</p>
+<ol class="org-ol"><li><a id="org7d71549"></a>Reminder of OO Inheritance<br  /><ul>
+<li>In object oriented languages, inheritance implies a parent class making copies of itself to it's children. The children then add methods and more specific functionality.
+<ul>
+<li>This is reinforced by the terms "parent" and "child."</li>
+
+</ul></li>
+<li>This method is very "downward" with the parents looking down over the children</li>
+
+</ul></li>
+<li><a id="orgf4683eb"></a>Prototypal Inheritance (which is actually not really inheritance at all)<br  /><ul>
+<li>Prototypal inheritance is when objects are linked upward to a common parent prototype object, attained from some constructor function. The flow is much more Object -&gt; Parent than Parent -&gt; Object</li>
+
+</ul>
+<ol class="org-ol"><li><a id="org7507513"></a>Constructors<br  /><ul>
+<li>subset of the function object- a constructor function</li>
+<li>Usually start with capital letter since they represent an object</li>
+<li>Any function can be a constructor
+<ul>
+<li>It just has to have the "new" keyword in front of it (new Foo())</li>
+
+</ul></li>
+<li>Constructors always return an object, but they also do whatever else is in the function.</li>
+
+</ul></li>
+<li><a id="org44fb9ed"></a>Inheritance<br  /><ul>
+<li>all functions by default get a public, non-enumerable property on them called prototype which points at an otherwise arbitrary object.
+<ul>
+<li>This is not to be confused with the object prototypes discussed earlier, and is a different object</li>
+<li>The prototype object is immediately above the object on the prototype chain
+<ul>
+<li><p>
+Any functions or variables on a constructor function's prototype will be fallen back on when called on the constructed object
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">function</span> <span style="color: #93E0E3;">Foo</span><span style="color: #DCDCCC;">()</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">...</span>
+<span style="color: #DCDCCC;">}</span>
+
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">a</span> = <span style="color: #F0DFAF; font-weight: bold;">new</span> <span style="color: #7CB8BB;">Foo</span><span style="color: #DCDCCC;">()</span>;
+
+Object.getPrototypeOf<span style="color: #DCDCCC;">(</span> a <span style="color: #DCDCCC;">)</span> === Foo.<span style="color: #BFEBBF;">prototype</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">true for all new Foo()s</span>
+</pre>
+</div></li>
+
+</ul></li>
+
+</ul></li>
+<li>Prototypal Inheritance allows a single constructor function to construct multiple instances of the same object. 
+<ul>
+<li><p>
+The multiple objects are linked together by a "parent" &lt;Object&gt;.prototype object.
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">function</span> <span style="color: #93E0E3;">Foo</span><span style="color: #DCDCCC;">(</span><span style="color: #DFAF8F;">name</span><span style="color: #DCDCCC;">)</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #BFEBBF;">this</span>.name = name;
+<span style="color: #DCDCCC;">}</span>
+
+Foo.<span style="color: #BFEBBF;">prototype</span>.myName = <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #DCDCCC;">()</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #F0DFAF; font-weight: bold;">return</span> <span style="color: #BFEBBF;">this</span>.name;
+<span style="color: #DCDCCC;">}</span>;
+
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">a</span> = <span style="color: #F0DFAF; font-weight: bold;">new</span> <span style="color: #7CB8BB;">Foo</span><span style="color: #DCDCCC;">(</span> <span style="color: #CC9393;">"a"</span> <span style="color: #DCDCCC;">)</span>;
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">b</span> = <span style="color: #F0DFAF; font-weight: bold;">new</span> <span style="color: #7CB8BB;">Foo</span><span style="color: #DCDCCC;">(</span> <span style="color: #CC9393;">"b"</span> <span style="color: #DCDCCC;">)</span>;
+
+a.myName<span style="color: #DCDCCC;">()</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">"a"</span>
+b.myName<span style="color: #DCDCCC;">()</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">"b"</span>
+</pre>
+</div></li>
+
+</ul></li>
+<li></li>
+
+<li></li>
+
+<li></li>
+
+<li></li>
+
+<li></li>
+
+<li></li>
+
+</ul></li>
+
+<li><a id="orgc058a8d"></a>In Action (just some cool code)<br  /><div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">function</span> <span style="color: #93E0E3;">Foo</span><span style="color: #DCDCCC;">(</span><span style="color: #DFAF8F;">name</span><span style="color: #DCDCCC;">)</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #BFEBBF;">this</span>.name = name;
+<span style="color: #DCDCCC;">}</span>
+
+Foo.<span style="color: #BFEBBF;">prototype</span>.myName = <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #DCDCCC;">()</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #F0DFAF; font-weight: bold;">return</span> <span style="color: #BFEBBF;">this</span>.name;
+<span style="color: #DCDCCC;">}</span>;
+
+<span style="color: #F0DFAF; font-weight: bold;">function</span> <span style="color: #93E0E3;">Bar</span><span style="color: #DCDCCC;">(</span><span style="color: #DFAF8F;">name</span>,<span style="color: #DFAF8F;">label</span><span style="color: #DCDCCC;">)</span> <span style="color: #DCDCCC;">{</span>
+    Foo.call<span style="color: #BFEBBF;">(</span> <span style="color: #BFEBBF;">this</span>, name <span style="color: #BFEBBF;">)</span>;
+    <span style="color: #BFEBBF;">this</span>.label = label;
+<span style="color: #DCDCCC;">}</span>
+
+<span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">here, we make a new `Bar.prototype`</span>
+<span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">linked to `Foo.prototype`</span>
+<span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">Note: Bar.prototype is gone completely</span>
+Bar.<span style="color: #BFEBBF;">prototype</span> = Object.create<span style="color: #DCDCCC;">(</span> Foo.<span style="color: #BFEBBF;">prototype</span> <span style="color: #DCDCCC;">)</span>;
+
+<span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">Beware! Now `Bar.prototype.constructor` is gone,</span>
+<span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">and might need to be manually "fixed" if you're</span>
+<span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">in the habit of relying on such properties!</span>
+
+Bar.<span style="color: #BFEBBF;">prototype</span>.myLabel = <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #DCDCCC;">()</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #F0DFAF; font-weight: bold;">return</span> <span style="color: #BFEBBF;">this</span>.label;
+<span style="color: #DCDCCC;">}</span>;
+
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">a</span> = <span style="color: #F0DFAF; font-weight: bold;">new</span> <span style="color: #7CB8BB;">Bar</span><span style="color: #DCDCCC;">(</span> <span style="color: #CC9393;">"a"</span>, <span style="color: #CC9393;">"obj a"</span> <span style="color: #DCDCCC;">)</span>;
+
+a.myName<span style="color: #DCDCCC;">()</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">"a"</span>
+a.myLabel<span style="color: #DCDCCC;">()</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">"obj a"</span>
+</pre>
+</div></li>
+
+<li><a id="orgb9275ae"></a>Up the Chain We Go<br  /><ul>
+<li>instanceof:</li>
+
+</ul>
+
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">function</span> <span style="color: #93E0E3;">Foo</span><span style="color: #DCDCCC;">()</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">...</span>
+<span style="color: #DCDCCC;">}</span>
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">a</span> = <span style="color: #F0DFAF; font-weight: bold;">new</span> <span style="color: #7CB8BB;">Foo</span><span style="color: #DCDCCC;">()</span>;
+</pre>
+</div>
+
+<ol class="org-ol"><li><a id="org1eefc49"></a>instanceof<br  /><p>
+The instanceof operator takes a plain object as its left-hand operand and a function as its right-hand operand. The question instanceof answers is: in the entire Prototype chain of a, does the object arbitrarily pointed to by Foo.prototype ever appear?
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-js">a <span style="color: #F0DFAF; font-weight: bold;">instanceof</span> <span style="color: #7CB8BB;">Foo</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">true</span>
+</pre>
+</div></li>
+
+<li><a id="org0975d8c"></a>isPrototypeOf<br  /><p>
+The question isPrototypeOf(..) answers is: in the entire Prototype chain of a, does Foo.prototype ever appear?
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-js">Foo.<span style="color: #BFEBBF;">prototype</span>.isPrototypeOf<span style="color: #DCDCCC;">(</span> a <span style="color: #DCDCCC;">)</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">true</span>
+</pre>
+</div></li>
+<li><a id="orgec37442"></a>getPrototypeOf<br  /><p>
+directly retrieve the Prototype of an object. 
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-js">Object.getPrototypeOf<span style="color: #DCDCCC;">(</span> a <span style="color: #DCDCCC;">)</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">Foo.prototype</span>
+</pre>
+</div></li></ol></li>
+<li><a id="org878d602"></a>Frustrated? Scared? Never fear!<br  /><p>
+Instead of dealing with the whole mess of .prototypes and .constructors getting all messed up by calling our constructor and adding its .prototype object to our prototype chain on our object, let's just do something else. 
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">foo</span> = <span style="color: #DCDCCC;">{</span>
+    <span style="color: #93E0E3;">something</span>: <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #BFEBBF;">()</span> <span style="color: #BFEBBF;">{</span>
+        console.log<span style="color: #D0BF8F;">(</span> <span style="color: #CC9393;">"Tell me something good..."</span> <span style="color: #D0BF8F;">)</span>;
+    <span style="color: #BFEBBF;">}</span>
+<span style="color: #DCDCCC;">}</span>;
+
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">bar</span> = Object.create<span style="color: #DCDCCC;">(</span> foo <span style="color: #DCDCCC;">)</span>;
+
+bar.something<span style="color: #DCDCCC;">()</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">Tell me something good...</span>
+</pre>
+</div>
+<p>
+Object.create(..) creates a new object (bar) linked to the object we specified (foo), which gives us all the power (delegation) of the Prototype mechanism, but without any of the unnecessary complication of new functions acting as classes and constructor calls, confusing .prototype and .constructor references, or any of that extra stuff.
+</p></li></ol></li></ol>
+</section>
+<section id="slide-org64403ec">
+<h3 id="org64403ec"><span class="section-number-3">2.4</span> Behavior Delegation - the alternative view on prototypes</h3>
+<p>
+Behavior Delegation means: let some object (XYZ) provide a delegation (to Task) for property or method references if not found on the object (XYZ).
+</p>
+
+<ul>
+<li>So, in typical OO inheritance, subclasses inherit all the stuff from their parents and add to/change/specify it.</li>
+<li>In js "inheritance," objects share links to other objects, but do not contain their own versions of methods/properties found "up the chain."</li>
+<li><p>
+When an object is given a property it doesn't have, the interpreter works up the prototype chain. If the property is found, it is called on THAT object, not on the original object.
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">Task</span> = <span style="color: #DCDCCC;">{</span>
+    <span style="color: #93E0E3;">setID</span>: <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #BFEBBF;">(</span><span style="color: #DFAF8F;">ID</span><span style="color: #BFEBBF;">)</span> <span style="color: #BFEBBF;">{</span> <span style="color: #BFEBBF;">this</span>.id = ID; <span style="color: #BFEBBF;">}</span>,
+    <span style="color: #93E0E3;">outputID</span>: <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #BFEBBF;">()</span> <span style="color: #BFEBBF;">{</span> console.log<span style="color: #D0BF8F;">(</span> <span style="color: #BFEBBF;">this</span>.id <span style="color: #D0BF8F;">)</span>; <span style="color: #BFEBBF;">}</span>
+<span style="color: #DCDCCC;">}</span>;
+
+<span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">make `XYZ` delegate to `Task`</span>
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">XYZ</span> = Object.create<span style="color: #DCDCCC;">(</span> Task <span style="color: #DCDCCC;">)</span>;
+
+XYZ.prepareTask = <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #DCDCCC;">(</span><span style="color: #DFAF8F;">ID</span>,<span style="color: #DFAF8F;">Label</span><span style="color: #DCDCCC;">)</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #BFEBBF;">this</span>.setID<span style="color: #BFEBBF;">(</span> ID <span style="color: #BFEBBF;">)</span>;
+    <span style="color: #BFEBBF;">this</span>.label = Label;
+<span style="color: #DCDCCC;">}</span>;
+
+XYZ.outputTaskDetails = <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #DCDCCC;">()</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #BFEBBF;">this</span>.outputID<span style="color: #BFEBBF;">()</span>;
+    console.log<span style="color: #BFEBBF;">(</span> <span style="color: #BFEBBF;">this</span>.label <span style="color: #BFEBBF;">)</span>;
+<span style="color: #DCDCCC;">}</span>;
+</pre>
+</div>
+<ul>
+<li>Note: Avoid overriding methods or variables in this style
+<ul>
+<li>instead, use general functions to compose more specific functions in the child</li>
+
+</ul></li>
+
+</ul></li>
+
+</ul>
+
+</section>
+<section id="slide-org0a87cba">
+<h4 id="org0a87cba"><span class="section-number-4">2.4.1</span> Example: Class vs Behavior Delegation</h4>
+<div class="outline-text-4" id="text-2-4-1">
+</div><ol class="org-ol"><li><a id="orgdc1b5f1"></a>Class:<br  /><div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">Parent class</span>
+<span style="color: #F0DFAF; font-weight: bold;">function</span> <span style="color: #93E0E3;">Controller</span><span style="color: #DCDCCC;">()</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #BFEBBF;">this</span>.errors = <span style="color: #BFEBBF;">[]</span>;
+<span style="color: #DCDCCC;">}</span>
+Controller.<span style="color: #BFEBBF;">prototype</span>.showDialog = <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #DCDCCC;">(</span><span style="color: #DFAF8F;">title</span>,<span style="color: #DFAF8F;">msg</span><span style="color: #DCDCCC;">)</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">display title &amp; message to user in dialog</span>
+<span style="color: #DCDCCC;">}</span>;
+Controller.<span style="color: #BFEBBF;">prototype</span>.success = <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #DCDCCC;">(</span><span style="color: #DFAF8F;">msg</span><span style="color: #DCDCCC;">)</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #BFEBBF;">this</span>.showDialog<span style="color: #BFEBBF;">(</span> <span style="color: #CC9393;">"Success"</span>, msg <span style="color: #BFEBBF;">)</span>;
+<span style="color: #DCDCCC;">}</span>;
+Controller.<span style="color: #BFEBBF;">prototype</span>.failure = <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #DCDCCC;">(</span><span style="color: #DFAF8F;">err</span><span style="color: #DCDCCC;">)</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #BFEBBF;">this</span>.errors.push<span style="color: #BFEBBF;">(</span> err <span style="color: #BFEBBF;">)</span>;
+    <span style="color: #BFEBBF;">this</span>.showDialog<span style="color: #BFEBBF;">(</span> <span style="color: #CC9393;">"Error"</span>, err <span style="color: #BFEBBF;">)</span>;
+<span style="color: #DCDCCC;">}</span>;
+
+<span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">Child class</span>
+<span style="color: #F0DFAF; font-weight: bold;">function</span> <span style="color: #93E0E3;">LoginController</span><span style="color: #DCDCCC;">()</span> <span style="color: #DCDCCC;">{</span>
+    Controller.call<span style="color: #BFEBBF;">(</span> <span style="color: #BFEBBF;">this</span> <span style="color: #BFEBBF;">)</span>;
+<span style="color: #DCDCCC;">}</span>
+<span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">Link child class to parent</span>
+LoginController.<span style="color: #BFEBBF;">prototype</span> = Object.create<span style="color: #DCDCCC;">(</span> Controller.<span style="color: #BFEBBF;">prototype</span> <span style="color: #DCDCCC;">)</span>;
+LoginController.<span style="color: #BFEBBF;">prototype</span>.getUser = <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #DCDCCC;">()</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #F0DFAF; font-weight: bold;">return</span> document.getElementById<span style="color: #BFEBBF;">(</span> <span style="color: #CC9393;">"login_username"</span> <span style="color: #BFEBBF;">)</span>.value;
+<span style="color: #DCDCCC;">}</span>;
+LoginController.<span style="color: #BFEBBF;">prototype</span>.getPassword = <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #DCDCCC;">()</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #F0DFAF; font-weight: bold;">return</span> document.getElementById<span style="color: #BFEBBF;">(</span> <span style="color: #CC9393;">"login_password"</span> <span style="color: #BFEBBF;">)</span>.value;
+<span style="color: #DCDCCC;">}</span>;
+LoginController.<span style="color: #BFEBBF;">prototype</span>.validateEntry = <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #DCDCCC;">(</span><span style="color: #DFAF8F;">user</span>,<span style="color: #DFAF8F;">pw</span><span style="color: #DCDCCC;">)</span> <span style="color: #DCDCCC;">{</span>
+    user = user || <span style="color: #BFEBBF;">this</span>.getUser<span style="color: #BFEBBF;">()</span>;
+    pw = pw || <span style="color: #BFEBBF;">this</span>.getPassword<span style="color: #BFEBBF;">()</span>;
+
+    <span style="color: #F0DFAF; font-weight: bold;">if</span> <span style="color: #BFEBBF;">(</span>!<span style="color: #D0BF8F;">(</span>user &amp;&amp; pw<span style="color: #D0BF8F;">)</span><span style="color: #BFEBBF;">)</span> <span style="color: #BFEBBF;">{</span>
+        <span style="color: #F0DFAF; font-weight: bold;">return</span> <span style="color: #BFEBBF;">this</span>.failure<span style="color: #D0BF8F;">(</span> <span style="color: #CC9393;">"Please enter a username &amp; password!"</span> <span style="color: #D0BF8F;">)</span>;
+    <span style="color: #BFEBBF;">}</span>
+    <span style="color: #F0DFAF; font-weight: bold;">else</span> <span style="color: #F0DFAF; font-weight: bold;">if</span> <span style="color: #BFEBBF;">(</span>pw.length &lt; <span style="color: #BFEBBF;">5</span><span style="color: #BFEBBF;">)</span> <span style="color: #BFEBBF;">{</span>
+        <span style="color: #F0DFAF; font-weight: bold;">return</span> <span style="color: #BFEBBF;">this</span>.failure<span style="color: #D0BF8F;">(</span> <span style="color: #CC9393;">"Password must be 5+ characters!"</span> <span style="color: #D0BF8F;">)</span>;
+    <span style="color: #BFEBBF;">}</span>
+
+    <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">got here? validated!</span>
+    <span style="color: #F0DFAF; font-weight: bold;">return</span> <span style="color: #BFEBBF;">true</span>;
+<span style="color: #DCDCCC;">}</span>;
+<span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">Override to extend base `failure()`</span>
+LoginController.<span style="color: #BFEBBF;">prototype</span>.failure = <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #DCDCCC;">(</span><span style="color: #DFAF8F;">err</span><span style="color: #DCDCCC;">)</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">"super" call</span>
+    Controller.<span style="color: #BFEBBF;">prototype</span>.failure.call<span style="color: #BFEBBF;">(</span> <span style="color: #BFEBBF;">this</span>, <span style="color: #CC9393;">"Login invalid: "</span> + err <span style="color: #BFEBBF;">)</span>;
+<span style="color: #DCDCCC;">}</span>;
+
+<span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">Child class</span>
+<span style="color: #F0DFAF; font-weight: bold;">function</span> <span style="color: #93E0E3;">AuthController</span><span style="color: #DCDCCC;">(</span><span style="color: #DFAF8F;">login</span><span style="color: #DCDCCC;">)</span> <span style="color: #DCDCCC;">{</span>
+    Controller.call<span style="color: #BFEBBF;">(</span> <span style="color: #BFEBBF;">this</span> <span style="color: #BFEBBF;">)</span>;
+    <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">in addition to inheritance, we also need composition</span>
+    <span style="color: #BFEBBF;">this</span>.login = login;
+<span style="color: #DCDCCC;">}</span>
+<span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">Link child class to parent</span>
+AuthController.<span style="color: #BFEBBF;">prototype</span> = Object.create<span style="color: #DCDCCC;">(</span> Controller.<span style="color: #BFEBBF;">prototype</span> <span style="color: #DCDCCC;">)</span>;
+AuthController.<span style="color: #BFEBBF;">prototype</span>.server = <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #DCDCCC;">(</span><span style="color: #DFAF8F;">url</span>,<span style="color: #DFAF8F;">data</span><span style="color: #DCDCCC;">)</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #F0DFAF; font-weight: bold;">return</span> $.ajax<span style="color: #BFEBBF;">(</span> <span style="color: #D0BF8F;">{</span>
+        url: url,
+        data: data
+    <span style="color: #D0BF8F;">}</span> <span style="color: #BFEBBF;">)</span>;
+<span style="color: #DCDCCC;">}</span>;
+AuthController.<span style="color: #BFEBBF;">prototype</span>.checkAuth = <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #DCDCCC;">()</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">user</span> = <span style="color: #BFEBBF;">this</span>.login.getUser<span style="color: #BFEBBF;">()</span>;
+    <span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">pw</span> = <span style="color: #BFEBBF;">this</span>.login.getPassword<span style="color: #BFEBBF;">()</span>;
+
+    <span style="color: #F0DFAF; font-weight: bold;">if</span> <span style="color: #BFEBBF;">(</span><span style="color: #BFEBBF;">this</span>.login.validateEntry<span style="color: #D0BF8F;">(</span> user, pw <span style="color: #D0BF8F;">)</span><span style="color: #BFEBBF;">)</span> <span style="color: #BFEBBF;">{</span>
+        <span style="color: #BFEBBF;">this</span>.server<span style="color: #D0BF8F;">(</span> <span style="color: #CC9393;">"/check-auth"</span>,<span style="color: #93E0E3;">{</span>
+            user: user,
+            pw: pw
+        <span style="color: #93E0E3;">}</span> <span style="color: #D0BF8F;">)</span>
+        .then<span style="color: #D0BF8F;">(</span> <span style="color: #BFEBBF;">this</span>.success.bind<span style="color: #93E0E3;">(</span> <span style="color: #BFEBBF;">this</span> <span style="color: #93E0E3;">)</span> <span style="color: #D0BF8F;">)</span>
+        .fail<span style="color: #D0BF8F;">(</span> <span style="color: #BFEBBF;">this</span>.failure.bind<span style="color: #93E0E3;">(</span> <span style="color: #BFEBBF;">this</span> <span style="color: #93E0E3;">)</span> <span style="color: #D0BF8F;">)</span>;
+    <span style="color: #BFEBBF;">}</span>
+<span style="color: #DCDCCC;">}</span>;
+<span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">Override to extend base `success()`</span>
+AuthController.<span style="color: #BFEBBF;">prototype</span>.success = <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #DCDCCC;">()</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">"super" call</span>
+    Controller.<span style="color: #BFEBBF;">prototype</span>.success.call<span style="color: #BFEBBF;">(</span> <span style="color: #BFEBBF;">this</span>, <span style="color: #CC9393;">"Authenticated!"</span> <span style="color: #BFEBBF;">)</span>;
+<span style="color: #DCDCCC;">}</span>;
+<span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">Override to extend base `failure()`</span>
+AuthController.<span style="color: #BFEBBF;">prototype</span>.failure = <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #DCDCCC;">(</span><span style="color: #DFAF8F;">err</span><span style="color: #DCDCCC;">)</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">"super" call</span>
+    Controller.<span style="color: #BFEBBF;">prototype</span>.failure.call<span style="color: #BFEBBF;">(</span> <span style="color: #BFEBBF;">this</span>, <span style="color: #CC9393;">"Auth Failed: "</span> + err <span style="color: #BFEBBF;">)</span>;
+<span style="color: #DCDCCC;">}</span>;
+
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">auth</span> = <span style="color: #F0DFAF; font-weight: bold;">new</span> <span style="color: #7CB8BB;">AuthController</span><span style="color: #DCDCCC;">(</span>
+    <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">in addition to inheritance, we also need composition</span>
+    <span style="color: #F0DFAF; font-weight: bold;">new</span> <span style="color: #7CB8BB;">LoginController</span><span style="color: #BFEBBF;">()</span>
+<span style="color: #DCDCCC;">)</span>;
+
+auth.checkAuth<span style="color: #DCDCCC;">()</span>;
+</pre>
+</div></li>
+<li><a id="org4259338"></a>Behavior Delegation:<br  /><div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">LoginController</span> = <span style="color: #DCDCCC;">{</span>
+    errors: <span style="color: #BFEBBF;">[]</span>,
+    <span style="color: #93E0E3;">getUser</span>: <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #BFEBBF;">()</span> <span style="color: #BFEBBF;">{</span>
+        <span style="color: #F0DFAF; font-weight: bold;">return</span> document.getElementById<span style="color: #D0BF8F;">(</span> <span style="color: #CC9393;">"login_username"</span> <span style="color: #D0BF8F;">)</span>.value;
+    <span style="color: #BFEBBF;">}</span>,
+    <span style="color: #93E0E3;">getPassword</span>: <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #BFEBBF;">()</span> <span style="color: #BFEBBF;">{</span>
+        <span style="color: #F0DFAF; font-weight: bold;">return</span> document.getElementById<span style="color: #D0BF8F;">(</span> <span style="color: #CC9393;">"login_password"</span> <span style="color: #D0BF8F;">)</span>.value;
+    <span style="color: #BFEBBF;">}</span>,
+    <span style="color: #93E0E3;">validateEntry</span>: <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #BFEBBF;">(</span><span style="color: #DFAF8F;">user</span>,<span style="color: #DFAF8F;">pw</span><span style="color: #BFEBBF;">)</span> <span style="color: #BFEBBF;">{</span>
+        user = user || <span style="color: #BFEBBF;">this</span>.getUser<span style="color: #D0BF8F;">()</span>;
+        pw = pw || <span style="color: #BFEBBF;">this</span>.getPassword<span style="color: #D0BF8F;">()</span>;
+
+        <span style="color: #F0DFAF; font-weight: bold;">if</span> <span style="color: #D0BF8F;">(</span>!<span style="color: #93E0E3;">(</span>user &amp;&amp; pw<span style="color: #93E0E3;">)</span><span style="color: #D0BF8F;">)</span> <span style="color: #D0BF8F;">{</span>
+            <span style="color: #F0DFAF; font-weight: bold;">return</span> <span style="color: #BFEBBF;">this</span>.failure<span style="color: #93E0E3;">(</span> <span style="color: #CC9393;">"Please enter a username &amp; password!"</span> <span style="color: #93E0E3;">)</span>;
+        <span style="color: #D0BF8F;">}</span>
+        <span style="color: #F0DFAF; font-weight: bold;">else</span> <span style="color: #F0DFAF; font-weight: bold;">if</span> <span style="color: #D0BF8F;">(</span>pw.length &lt; <span style="color: #BFEBBF;">5</span><span style="color: #D0BF8F;">)</span> <span style="color: #D0BF8F;">{</span>
+            <span style="color: #F0DFAF; font-weight: bold;">return</span> <span style="color: #BFEBBF;">this</span>.failure<span style="color: #93E0E3;">(</span> <span style="color: #CC9393;">"Password must be 5+ characters!"</span> <span style="color: #93E0E3;">)</span>;
+        <span style="color: #D0BF8F;">}</span>
+
+        <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">got here? validated!</span>
+        <span style="color: #F0DFAF; font-weight: bold;">return</span> <span style="color: #BFEBBF;">true</span>;
+    <span style="color: #BFEBBF;">}</span>,
+    <span style="color: #93E0E3;">showDialog</span>: <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #BFEBBF;">(</span><span style="color: #DFAF8F;">title</span>,<span style="color: #DFAF8F;">msg</span><span style="color: #BFEBBF;">)</span> <span style="color: #BFEBBF;">{</span>
+        <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">display success message to user in dialog</span>
+    <span style="color: #BFEBBF;">}</span>,
+    <span style="color: #93E0E3;">failure</span>: <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #BFEBBF;">(</span><span style="color: #DFAF8F;">err</span><span style="color: #BFEBBF;">)</span> <span style="color: #BFEBBF;">{</span>
+        <span style="color: #BFEBBF;">this</span>.errors.push<span style="color: #D0BF8F;">(</span> err <span style="color: #D0BF8F;">)</span>;
+        <span style="color: #BFEBBF;">this</span>.showDialog<span style="color: #D0BF8F;">(</span> <span style="color: #CC9393;">"Error"</span>, <span style="color: #CC9393;">"Login invalid: "</span> + err <span style="color: #D0BF8F;">)</span>;
+    <span style="color: #BFEBBF;">}</span>
+<span style="color: #DCDCCC;">}</span>;
+
+<span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">Link `AuthController` to delegate to `LoginController`</span>
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">AuthController</span> = Object.create<span style="color: #DCDCCC;">(</span> LoginController <span style="color: #DCDCCC;">)</span>;
+
+AuthController.errors = <span style="color: #DCDCCC;">[]</span>;
+AuthController.checkAuth = <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #DCDCCC;">()</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">user</span> = <span style="color: #BFEBBF;">this</span>.getUser<span style="color: #BFEBBF;">()</span>;
+    <span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">pw</span> = <span style="color: #BFEBBF;">this</span>.getPassword<span style="color: #BFEBBF;">()</span>;
+
+    <span style="color: #F0DFAF; font-weight: bold;">if</span> <span style="color: #BFEBBF;">(</span><span style="color: #BFEBBF;">this</span>.validateEntry<span style="color: #D0BF8F;">(</span> user, pw <span style="color: #D0BF8F;">)</span><span style="color: #BFEBBF;">)</span> <span style="color: #BFEBBF;">{</span>
+        <span style="color: #BFEBBF;">this</span>.server<span style="color: #D0BF8F;">(</span> <span style="color: #CC9393;">"/check-auth"</span>,<span style="color: #93E0E3;">{</span>
+            user: user,
+            pw: pw
+        <span style="color: #93E0E3;">}</span> <span style="color: #D0BF8F;">)</span>
+        .then<span style="color: #D0BF8F;">(</span> <span style="color: #BFEBBF;">this</span>.accepted.bind<span style="color: #93E0E3;">(</span> <span style="color: #BFEBBF;">this</span> <span style="color: #93E0E3;">)</span> <span style="color: #D0BF8F;">)</span>
+        .fail<span style="color: #D0BF8F;">(</span> <span style="color: #BFEBBF;">this</span>.rejected.bind<span style="color: #93E0E3;">(</span> <span style="color: #BFEBBF;">this</span> <span style="color: #93E0E3;">)</span> <span style="color: #D0BF8F;">)</span>;
+    <span style="color: #BFEBBF;">}</span>
+<span style="color: #DCDCCC;">}</span>;
+AuthController.server = <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #DCDCCC;">(</span><span style="color: #DFAF8F;">url</span>,<span style="color: #DFAF8F;">data</span><span style="color: #DCDCCC;">)</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #F0DFAF; font-weight: bold;">return</span> $.ajax<span style="color: #BFEBBF;">(</span> <span style="color: #D0BF8F;">{</span>
+        url: url,
+        data: data
+    <span style="color: #D0BF8F;">}</span> <span style="color: #BFEBBF;">)</span>;
+<span style="color: #DCDCCC;">}</span>;
+AuthController.accepted = <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #DCDCCC;">()</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #BFEBBF;">this</span>.showDialog<span style="color: #BFEBBF;">(</span> <span style="color: #CC9393;">"Success"</span>, <span style="color: #CC9393;">"Authenticated!"</span> <span style="color: #BFEBBF;">)</span>
+<span style="color: #DCDCCC;">}</span>;
+AuthController.rejected = <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #DCDCCC;">(</span><span style="color: #DFAF8F;">err</span><span style="color: #DCDCCC;">)</span> <span style="color: #DCDCCC;">{</span>
+    <span style="color: #BFEBBF;">this</span>.failure<span style="color: #BFEBBF;">(</span> <span style="color: #CC9393;">"Auth Failed: "</span> + err <span style="color: #BFEBBF;">)</span>;
+<span style="color: #DCDCCC;">}</span>;
+</pre>
+</div></li></ol>
+
+</section>
+<section id="slide-orgf31da46">
+<h3 id="orgf31da46"><span class="section-number-3">2.5</span> ES6 Classes</h3>
+<p>
+Really just the same old hacky solution, with a little syntactic help. Kindof a middle zone between class and behaviorial.
+</p>
+<div class="org-src-container">
+
+<pre  class="src src-js"><span style="color: #F0DFAF; font-weight: bold;">class</span> C <span style="color: #DCDCCC;">{</span>
+    constructor<span style="color: #BFEBBF;">()</span> <span style="color: #BFEBBF;">{</span>
+        <span style="color: #BFEBBF;">this</span>.num = Math.random<span style="color: #D0BF8F;">()</span>;
+    <span style="color: #BFEBBF;">}</span>
+    rand<span style="color: #BFEBBF;">()</span> <span style="color: #BFEBBF;">{</span>
+        console.log<span style="color: #D0BF8F;">(</span> <span style="color: #CC9393;">"Random: "</span> + <span style="color: #BFEBBF;">this</span>.num <span style="color: #D0BF8F;">)</span>;
+    <span style="color: #BFEBBF;">}</span>
+<span style="color: #DCDCCC;">}</span>
+
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">c1</span> = <span style="color: #F0DFAF; font-weight: bold;">new</span> <span style="color: #7CB8BB;">C</span><span style="color: #DCDCCC;">()</span>;
+c1.rand<span style="color: #DCDCCC;">()</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">"Random: 0.4324299..."</span>
+
+C.<span style="color: #BFEBBF;">prototype</span>.rand = <span style="color: #F0DFAF; font-weight: bold;">function</span><span style="color: #DCDCCC;">()</span> <span style="color: #DCDCCC;">{</span>
+    console.log<span style="color: #BFEBBF;">(</span> <span style="color: #CC9393;">"Random: "</span> + Math.round<span style="color: #D0BF8F;">(</span> <span style="color: #BFEBBF;">this</span>.num * <span style="color: #BFEBBF;">1000</span> <span style="color: #D0BF8F;">)</span><span style="color: #BFEBBF;">)</span>;
+<span style="color: #DCDCCC;">}</span>;
+
+<span style="color: #F0DFAF; font-weight: bold;">var</span> <span style="color: #DFAF8F;">c2</span> = <span style="color: #F0DFAF; font-weight: bold;">new</span> <span style="color: #7CB8BB;">C</span><span style="color: #DCDCCC;">()</span>;
+c2.rand<span style="color: #DCDCCC;">()</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">"Random: 867"</span>
+
+c1.rand<span style="color: #DCDCCC;">()</span>; <span style="color: #5F7F5F;">// </span><span style="color: #7F9F7F;">"Random: 432" -- oops!!!</span>
+</pre>
+</div>
+</section>
+</section>
+</div>
+</div>
+<script src="./reveal.js/lib/js/head.min.js"></script>
+<script src="./reveal.js/js/reveal.js"></script>
+
+<script>
+// Full list of configuration options available here:
+// https://github.com/hakimel/reveal.js#configuration
+Reveal.initialize({
+
+controls: true,
+progress: true,
+history: false,
+center: true,
+slideNumber: 'c',
+rollingLinks: false,
+keyboard: true,
+overview: true,
+
+theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+transitionSpeed: 'default',
+multiplex: {
+    secret: '', // null if client
+    id: '', // id, obtained from socket.io server
+    url: '' // Location of socket.io server
+},
+
+// Optional libraries used to extend on reveal.js
+dependencies: [
+ { src: './reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+ { src: './reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+ { src: './reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+ { src: './reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }]
+});
+</script>
+</body>
+</html>
