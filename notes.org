@@ -7,11 +7,11 @@
 **** IIFE - Immediately Invoked Function Expression
      - Call an anonymous function expression right after declaring it
        #+BEGIN_SRC js
-     (function(){ .. })()
+         (function(){ .. })()
        #+END_SRC
        or
        #+BEGIN_SRC js
-     (function(){ .. }())
+         (function(){ .. }())
        #+END_SRC
        (both work the same)
 *** Vars
@@ -47,7 +47,7 @@
 
      var baz = foo();
 
-     baz(); // 2 -- Whoa, closure was just observed, man.   
+     baz(); // 2 -- Whoa, closure was just observed, man.
      #+END_SRC
      - check it:
        1. foo returns bar to baz, passing it as a value
@@ -75,8 +75,8 @@
           })();
       }
     #+END_SRC
-    1 2 3 4 5 is printed, as j is necessarily bound to i in the function, which then is passed to timer(). 
-    The IIFE "blocks" the other iterations' timer() function from getting in the way of each other, as it is specific to the iteration 
+    1 2 3 4 5 is printed, as j is necessarily bound to i in the function, which then is passed to timer().
+    The IIFE "blocks" the other iterations' timer() function from getting in the way of each other, as it is specific to the iteration
     
     
     Let and block scoping can fix alllllll this nonsense
@@ -104,7 +104,7 @@
           function doAnother() {
               console.log( another.join( " ! " ) );
           }
-      
+
           return {
               doSomething: doSomething,
               doAnother: doAnother
@@ -134,30 +134,30 @@
 *** What it is
 **** Call-site
      call-site: the location in code where a function was called (not to be confused with where it was declared)
-**** Scope
+**** Binding Variations
 ***** Default
-     - the this variable refers to the call site, so this.a will be the variable a somewhere in the scope of the function call
-       #+BEGIN_SRC js
-         function foo() {
-             console.log( this.a );
-         }
+      - the this variable refers to the call site, so this.a will be the variable a somewhere in the scope of the function call
+        #+BEGIN_SRC js
+          function foo() {
+              console.log( this.a );
+          }
 
-         var a = 2;
+          var a = 2;
 
-         foo(); // 2
-       #+END_SRC
-       
-    - strict mode does not allow this to refer to global scope
-      #+BEGIN_SRC js
-        function foo() {
-            "use strict";
-            console.log( this.a );
-        }
-        var a = 2;
-        foo(); // TypeError: `this` is `undefined`
+          foo(); // 2
+        #+END_SRC
+        
+      - strict mode does not allow this to refer to global scope
+        #+BEGIN_SRC js
+          function foo() {
+              "use strict";
+              console.log( this.a );
+          }
+          var a = 2;
+          foo(); // TypeError: `this` is `undefined`
 
-      #+END_SRC
-      
+        #+END_SRC
+        
 ***** Implicit
       
       This CAN refer to an object, like in java!! Except it's even cooler. Check this out:
@@ -173,7 +173,7 @@
 
         obj.foo(); // 2
       #+END_SRC
-
+      
       And it works like you'd expect:
       #+BEGIN_SRC js
         function foo() {
@@ -192,3 +192,657 @@
 
         obj1.obj2.foo(); // 42
       #+END_SRC
+      
+***** Explicit
+      - binding the function in the object declaration can get a little messy
+      - To be certain that "this" refers to a specific option, you can explicitly bind the function and the object using the call or apply methods
+      - foo.call(obj) will make certain that "this" in foo refers to obj.
+****** Hard binding
+       - explicit binding can still act funny sometimes. Hard binding is the end-all answer
+       - hard binding uses a second function to bind foo to obj (in our example)
+       #+BEGIN_SRC js
+         function foo(something) {
+             console.log( this.a, something );
+             return this.a + something;
+         }
+
+         // simple `bind` helper
+         function bind(fn, obj) {
+             return function() {
+                 return fn.apply( obj, arguments );
+             };
+         }
+
+         var obj = {
+             a: 2
+         };
+
+         var bar = bind( foo, obj );
+
+         var b = bar( 3 ); // 2 3
+         console.log( b ); // 5
+       #+END_SRC
+       - This bind function is included in ES5 and doesn't need to be rewritten
+         #+BEGIN_SRC js
+                function foo(something) {
+                    console.log( this.a, something );
+                    return this.a + something;
+                }
+
+                var obj = {
+                    a: 2
+                };
+
+                var bar = foo.bind( obj ); // Boom
+
+                var b = bar( 3 ); // 2 3
+                console.log( b ); // 5
+         #+END_SRC
+         
+       - in ES6, the hard-bound function has a .name attribute for debugging purposes
+         
+***** "new" Binding
+      - there are no real constructors in js
+      - constructors are simply a function preceded by "new"
+      - "new <function>" makes <function> into a constructor, runs it, and returns a prototype object
+      - The new object is now the this for that function
+        #+BEGIN_SRC js
+           function foo(a) {
+               this.a = a;
+           }
+
+           var bar = new foo( 2 );
+           console.log( bar.a ); // 2
+        #+END_SRC
+***** Precedence
+      1. new
+      2. explicit/hard
+      3. implicit
+      4. default
+****** From the book:
+       
+       1. Is the function called with new (new binding)? If so, this is the newly constructed object.
+          
+          #+BEGIN_SRC js
+              var bar = new foo()
+          #+END_SRC
+          
+       2. Is the function called with call or apply (explicit binding), even hidden inside a bind hard binding? If so, this is the explicitly specified object.
+          
+          #+BEGIN_SRC js
+            var bar = foo.call( obj2 )
+          #+END_SRC
+          
+       3. Is the function called with a context (implicit binding), otherwise known as an owning or containing object? If so, this is that context object.
+          
+          #+BEGIN_SRC js
+            var bar = obj1.foo()
+          #+END_SRC
+          
+       4. Otherwise, default the this (default binding). If in strict mode, pick undefined, otherwise pick the global object.
+          
+          #+BEGIN_SRC js
+            var bar = foo()
+          #+END_SRC
+***** ES6 Caveat - Arrow function
+      - An arrow function allows functions to inherit "this" from up a lexical layer, whether that be another function or global scope
+      - uses => instead of "function"
+        #+BEGIN_SRC js
+            function foo() {
+                setTimeout(() => {
+                    // `this` here is lexically adopted from `foo()`
+                    console.log( this.a );
+                },100);
+            }
+
+            var obj = {
+                a: 2
+            };
+
+            foo.call( obj ); // 2
+        #+END_SRC
+** Objects
+*** 6 types:
+    1. string
+    2. number
+    3. boolean 
+    4. null
+    5. undefined
+    6. object
+*** Built in Objects:
+
+    1. String 
+    2. Number
+    3. Boolean
+    4. Object
+    5. Function
+    6. Array
+    7. Date
+    8. RegExp
+    9. Error
+
+       primary types like string will be automatically cast to String when String functions are called on them
+*** Properties
+    - property names are always strings
+    - There is no method property, as methods are necessarily tied to their objects. While an object in js can use a function, it cannot tie the function to itself.
+    - Arrays are like objects, but they have numerical properties
+      - they can have non-numerical properties, but it can get messy
+**** Copying Objects and Properties
+     - Shallow copy: copy one object deep (keep references of other objects contained in the copied objects)
+     - Deep copy: copy all the way down, creating new references to new objects until you get to only primary types
+***** Solutions:
+      1. To JSON and Back:
+      #+BEGIN_SRC js
+        var newObj = JSON.parse( JSON.stringify( someObj ) );
+      #+END_SRC
+      1. ES6:
+         #+BEGIN_SRC js
+           /* <target> = Object.assign(<target>,<source>); */
+           var newObj = Object.assign( {}, myObject );
+         #+END_SRC
+         - Creates a shallow copy, keeping any object references from the copied object the same
+**** Property Descriptors
+
+     #+BEGIN_SRC js
+           var myObject = {
+               a: 2
+           };
+
+           Object.getOwnPropertyDescriptor( myObject, "a" );
+           // {
+           //    value: 2,
+           //    writable: true,
+           //    configurable: true
+           //    enumerable: true,
+           // }
+     #+END_SRC
+***** value
+      The value of the property. Can be set with either:
+      1. dot syntax
+         #+BEGIN_SRC js
+           myobj.a = 2;
+         #+END_SRC
+      2. bracket syntax
+         #+BEGIN_SRC js
+           myobj["a"] = 2;
+         #+END_SRC
+***** writable
+      The ability to change the value after it is set. Reassignments fail silently when not in strict mode.
+
+***** configurable
+      The ability to change the property descriptor. Cannot be undone once set (as you can't change the descriptor...).
+***** enumerable
+      Whether or not the property comes up in "for .. in" loops.
+
+*** Immutability
+
+**** Object Constant
+     By combining writable:false and configurable:false, you can essentially create a constant (cannot be changed, redefined or deleted) as an object property.
+
+**** Prevent Extensions
+     If you want to prevent an object from having new properties added to it, but otherwise leave the rest of the object's properties alone, call Object.preventExtensions(..)
+
+**** Seal
+     Object.seal(..) creates a "sealed" object, which means it takes an existing object and essentially calls Object.preventExtensions(..) on it, but also marks all its existing properties as configurable:false.
+
+**** Freeze
+     Object.freeze(..) creates a frozen object, which means it takes an existing object and essentially calls Object.seal(..) on it, but it also marks all "data accessor" properties as writable:false, so that their values cannot be changed.
+
+**** Deep Freeze 
+     call Object.freeze(..) on the object, and then recursively iterating over all objects it references (which would have been unaffected thus far), and calling Object.freeze(..) on them as well.
+*** Getters and Setters
+    #+BEGIN_SRC js
+      var myObject = {
+          // define a getter for `a`
+          get a() {
+              return this._a_;
+          },
+
+          // define a setter for `a`
+          set a(val) {
+              this._a_ = val * 2;
+          }
+      };
+
+      myObject.a = 2;
+
+      myObject.a; // 4
+    #+END_SRC
+
+*** Mixins
+    Since objects are not classes and do not employ polymorphism or inheritance, mixins are the hacky solution.
+
+**** Explicit Mixins
+
+     #+BEGIN_SRC js
+       // vastly simplified `mixin(..)` example:
+       function mixin( sourceObj, targetObj ) {
+           for (var key in sourceObj) {
+               // only copy if not already present
+               if (!(key in targetObj)) {
+                   targetObj[key] = sourceObj[key];
+               }
+           }
+
+           return targetObj;
+       }
+
+       var Vehicle = {
+           engines: 1,
+
+           ignition: function() {
+               console.log( "Turning on my engine." );
+           },
+
+           drive: function() {
+               this.ignition();
+               console.log( "Steering and moving forward!" );
+           }
+       };
+
+       var Car = mixin( Vehicle, {
+           wheels: 4,
+
+           drive: function() {
+               Vehicle.drive.call( this ); // make sure that "this" is Car, not Vehicle
+               console.log( "Rolling on all " + this.wheels + " wheels!" );
+           }
+       } );
+     #+END_SRC
+
+**** Implicit Mixins
+
+     #+BEGIN_SRC js
+       var Something = {
+           cool: function() {
+               this.greeting = "Hello World";
+               this.count = this.count ? this.count + 1 : 1;
+           }
+       };
+
+       Something.cool();
+       Something.greeting; // "Hello World"
+       Something.count; // 1
+
+       var Another = {
+           cool: function() {
+               // implicit mixin of `Something` to `Another`
+               Something.cool.call( this );
+           }
+       };
+
+       Another.cool();
+       Another.greeting; // "Hello World"
+       Another.count; // 1 (not shared state with `Something`)
+
+     #+END_SRC
+**** Basically, just don't even bother with forcing OO concepts into js objects. If you want to write OO, use java or ES6, but this is just gross.
+
+** Prototypes
+
+*** Prototype Chain
+    - Basically, how js looks up properties in objects. 
+    - Similar to Inheritance, if a property isn't declared in one object, the interpreter will look "up" the chain to see if it's declared elsewhere. 
+*** Object.prototype
+    - The super-prototype to all prototypes (the Object of javascript)
+*** Setting and Shadowing
+    - Setting a property may cause shadowing if the same property exists in an object higher up the prototype chain
+      - consider this:
+        1. myObject is down the prototype chain from youObject
+        2. yourObject contains a property 'foo'
+        3. I set a 'foo' property on myObject by "myObject.foo = 2;"
+        4. myObject's 'foo' /shadows/ youObject's 'foo'
+    - Shadowing doesn't always occur like you think.
+      - If you want to be sure to shadow, use Object.defineProperty(..) to add properties.
+
+
+    if myObject set the property foo, and is down the prototype chain from yourObject( which already had a foo property) myObject
+*** "Classes" and Prototypal Inheritance
+    So mixins aren't classes and objects aren't classes but there's still constructors which implies there's classes so what's up? Enter "Prototypal Inheritance"
+**** Reminder of OO Inheritance
+     - In object oriented languages, inheritance implies a parent class making copies of itself to it's children. The children then add methods and more specific functionality.
+       - This is reinforced by the terms "parent" and "child."
+     - This method is very "downward" with the parents looking down over the children
+**** Prototypal Inheritance (which is actually not really inheritance at all)
+     - Prototypal inheritance is when objects are linked upward to a common parent prototype object, attained from some constructor function. The flow is much more Object -> Parent than Parent -> Object
+***** Constructors 
+      - subset of the function object- a constructor function
+      - Usually start with capital letter since they represent an object
+      - Any function can be a constructor
+        - It just has to have the "new" keyword in front of it (new Foo())
+      - Constructors always return an object, but they also do whatever else is in the function.
+***** Inheritance
+      - all functions by default get a public, non-enumerable property on them called prototype which points at an otherwise arbitrary object.
+        - This is not to be confused with the object prototypes discussed earlier, and is a different object
+        - The prototype object is immediately above the object on the prototype chain
+          - Any functions or variables on a constructor function's prototype will be fallen back on when called on the constructed object
+            #+BEGIN_SRC js
+              function Foo() {
+                  // ...
+              }
+
+              var a = new Foo();
+
+              Object.getPrototypeOf( a ) === Foo.prototype; // true for all new Foo()s
+            #+END_SRC
+      - Prototypal Inheritance allows a single constructor function to construct multiple instances of the same object. 
+        - The multiple objects are linked together by a "parent" <Object>.prototype object.
+          #+BEGIN_SRC js
+              function Foo(name) {
+                  this.name = name;
+              }
+
+              Foo.prototype.myName = function() {
+                  return this.name;
+              };
+
+              var a = new Foo( "a" );
+              var b = new Foo( "b" );
+
+              a.myName(); // "a"
+              b.myName(); // "b"
+          #+END_SRC
+      - 
+      - 
+      - 
+      - 
+      - 
+      - 
+
+***** In Action (just some cool code)
+      #+BEGIN_SRC js
+        function Foo(name) {
+            this.name = name;
+        }
+
+        Foo.prototype.myName = function() {
+            return this.name;
+        };
+
+        function Bar(name,label) {
+            Foo.call( this, name );
+            this.label = label;
+        }
+
+        // here, we make a new `Bar.prototype`
+        // linked to `Foo.prototype`
+        // Note: Bar.prototype is gone completely
+        Bar.prototype = Object.create( Foo.prototype );
+
+        // Beware! Now `Bar.prototype.constructor` is gone,
+        // and might need to be manually "fixed" if you're
+        // in the habit of relying on such properties!
+
+        Bar.prototype.myLabel = function() {
+            return this.label;
+        };
+
+        var a = new Bar( "a", "obj a" );
+
+        a.myName(); // "a"
+        a.myLabel(); // "obj a"
+
+      #+END_SRC
+
+***** Up the Chain We Go
+      - instanceof:
+
+      #+BEGIN_SRC js
+        function Foo() {
+            // ...
+        }
+        var a = new Foo();
+      #+END_SRC
+
+****** instanceof
+       The instanceof operator takes a plain object as its left-hand operand and a function as its right-hand operand. The question instanceof answers is: in the entire [[Prototype]] chain of a, does the object arbitrarily pointed to by Foo.prototype ever appear?
+       #+BEGIN_SRC js
+        a instanceof Foo; // true
+       #+END_SRC
+
+****** isPrototypeOf
+       The question isPrototypeOf(..) answers is: in the entire [[Prototype]] chain of a, does Foo.prototype ever appear?
+       #+BEGIN_SRC js
+        Foo.prototype.isPrototypeOf( a ); // true
+       #+END_SRC
+****** getPrototypeOf
+       directly retrieve the [[Prototype]] of an object. 
+       #+BEGIN_SRC js
+        Object.getPrototypeOf( a ); // Foo.prototype
+       #+END_SRC
+***** Frustrated? Scared? Never fear! 
+      Instead of dealing with the whole mess of .prototypes and .constructors getting all messed up by calling our constructor and adding its .prototype object to our prototype chain on our object, let's just do something else. 
+      #+BEGIN_SRC js
+        var foo = {
+            something: function() {
+                console.log( "Tell me something good..." );
+            }
+        };
+
+        var bar = Object.create( foo );
+
+        bar.something(); // Tell me something good...
+      #+END_SRC
+      Object.create(..) creates a new object (bar) linked to the object we specified (foo), which gives us all the power (delegation) of the [[Prototype]] mechanism, but without any of the unnecessary complication of new functions acting as classes and constructor calls, confusing .prototype and .constructor references, or any of that extra stuff.
+** Behavior Delegation - the alternative view on prototypes
+   Behavior Delegation means: let some object (XYZ) provide a delegation (to Task) for property or method references if not found on the object (XYZ).
+
+   - So, in typical OO inheritance, subclasses inherit all the stuff from their parents and add to/change/specify it. 
+   - In js "inheritance," objects share links to other objects, but do not contain their own versions of methods/properties found "up the chain."
+   - When an object is given a property it doesn't have, the interpreter works up the prototype chain. If the property is found, it is called on THAT object, not on the original object.
+     #+BEGIN_SRC js
+          var Task = {
+              setID: function(ID) { this.id = ID; },
+              outputID: function() { console.log( this.id ); }
+          };
+
+          // make `XYZ` delegate to `Task`
+          var XYZ = Object.create( Task );
+
+          XYZ.prepareTask = function(ID,Label) {
+              this.setID( ID );
+              this.label = Label;
+          };
+
+          XYZ.outputTaskDetails = function() {
+              this.outputID();
+              console.log( this.label );
+          };
+     #+END_SRC
+     - Note: Avoid overriding methods or variables in this style
+       - instead, use general functions to compose more specific functions in the child
+
+*** Example: Class vs Behavior Delegation 
+**** Class:
+       #+BEGIN_SRC js
+         // Parent class
+         function Controller() {
+             this.errors = [];
+         }
+         Controller.prototype.showDialog = function(title,msg) {
+             // display title & message to user in dialog
+         };
+         Controller.prototype.success = function(msg) {
+             this.showDialog( "Success", msg );
+         };
+         Controller.prototype.failure = function(err) {
+             this.errors.push( err );
+             this.showDialog( "Error", err );
+         };
+
+         // Child class
+         function LoginController() {
+             Controller.call( this );
+         }
+         // Link child class to parent
+         LoginController.prototype = Object.create( Controller.prototype );
+         LoginController.prototype.getUser = function() {
+             return document.getElementById( "login_username" ).value;
+         };
+         LoginController.prototype.getPassword = function() {
+             return document.getElementById( "login_password" ).value;
+         };
+         LoginController.prototype.validateEntry = function(user,pw) {
+             user = user || this.getUser();
+             pw = pw || this.getPassword();
+
+             if (!(user && pw)) {
+                 return this.failure( "Please enter a username & password!" );
+             }
+             else if (pw.length < 5) {
+                 return this.failure( "Password must be 5+ characters!" );
+             }
+
+             // got here? validated!
+             return true;
+         };
+         // Override to extend base `failure()`
+         LoginController.prototype.failure = function(err) {
+             // "super" call
+             Controller.prototype.failure.call( this, "Login invalid: " + err );
+         };
+
+         // Child class
+         function AuthController(login) {
+             Controller.call( this );
+             // in addition to inheritance, we also need composition
+             this.login = login;
+         }
+         // Link child class to parent
+         AuthController.prototype = Object.create( Controller.prototype );
+         AuthController.prototype.server = function(url,data) {
+             return $.ajax( {
+                 url: url,
+                 data: data
+             } );
+         };
+         AuthController.prototype.checkAuth = function() {
+             var user = this.login.getUser();
+             var pw = this.login.getPassword();
+
+             if (this.login.validateEntry( user, pw )) {
+                 this.server( "/check-auth",{
+                     user: user,
+                     pw: pw
+                 } )
+                 .then( this.success.bind( this ) )
+                 .fail( this.failure.bind( this ) );
+             }
+         };
+         // Override to extend base `success()`
+         AuthController.prototype.success = function() {
+             // "super" call
+             Controller.prototype.success.call( this, "Authenticated!" );
+         };
+         // Override to extend base `failure()`
+         AuthController.prototype.failure = function(err) {
+             // "super" call
+             Controller.prototype.failure.call( this, "Auth Failed: " + err );
+         };
+
+         var auth = new AuthController(
+             // in addition to inheritance, we also need composition
+             new LoginController()
+         );
+
+         auth.checkAuth();
+       #+END_SRC
+**** Behavior Delegation:
+       #+BEGIN_SRC js
+         var LoginController = {
+             errors: [],
+             getUser: function() {
+                 return document.getElementById( "login_username" ).value;
+             },
+             getPassword: function() {
+                 return document.getElementById( "login_password" ).value;
+             },
+             validateEntry: function(user,pw) {
+                 user = user || this.getUser();
+                 pw = pw || this.getPassword();
+
+                 if (!(user && pw)) {
+                     return this.failure( "Please enter a username & password!" );
+                 }
+                 else if (pw.length < 5) {
+                     return this.failure( "Password must be 5+ characters!" );
+                 }
+
+                 // got here? validated!
+                 return true;
+             },
+             showDialog: function(title,msg) {
+                 // display success message to user in dialog
+             },
+             failure: function(err) {
+                 this.errors.push( err );
+                 this.showDialog( "Error", "Login invalid: " + err );
+             }
+         };
+
+         // Link `AuthController` to delegate to `LoginController`
+         var AuthController = Object.create( LoginController );
+
+         AuthController.errors = [];
+         AuthController.checkAuth = function() {
+             var user = this.getUser();
+             var pw = this.getPassword();
+
+             if (this.validateEntry( user, pw )) {
+                 this.server( "/check-auth",{
+                     user: user,
+                     pw: pw
+                 } )
+                 .then( this.accepted.bind( this ) )
+                 .fail( this.rejected.bind( this ) );
+             }
+         };
+         AuthController.server = function(url,data) {
+             return $.ajax( {
+                 url: url,
+                 data: data
+             } );
+         };
+         AuthController.accepted = function() {
+             this.showDialog( "Success", "Authenticated!" )
+         };
+         AuthController.rejected = function(err) {
+             this.failure( "Auth Failed: " + err );
+         };
+
+       #+END_SRC
+
+** ES6 Classes
+   Really just the same old hacky solution, with a little syntactic help. Kindof a middle zone between class and behaviorial.
+   #+BEGIN_SRC js
+         class C {
+             constructor() {
+                 this.num = Math.random();
+             }
+             rand() {
+                 console.log( "Random: " + this.num );
+             }
+         }
+
+         var c1 = new C();
+         c1.rand(); // "Random: 0.4324299..."
+
+         C.prototype.rand = function() {
+             console.log( "Random: " + Math.round( this.num * 1000 ));
+         };
+
+         var c2 = new C();
+         c2.rand(); // "Random: 867"
+
+         c1.rand(); // "Random: 432" -- oops!!!
+   #+END_SRC
+   #+BEGIN_SRC js
+   #+END_SRC
+   #+BEGIN_SRC js
+   #+END_SRC
+   #+BEGIN_SRC js
+   #+END_SRC
+   #+BEGIN_SRC js
+   #+END_SRC
+   #+BEGIN_SRC js
+   #+END_SRC
