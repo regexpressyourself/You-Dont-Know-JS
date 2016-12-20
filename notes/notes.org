@@ -1052,23 +1052,61 @@
       a.valueOf(); // "abc"
       b.valueOf(); // 42
       c.valueOf(); // true
-    #+END_SRC
+      #+END_SRC
 
-    #+BEGIN_SRC js
-    #+END_SRC
-    #+BEGIN_SRC js
-    #+END_SRC
-    #+BEGIN_SRC js
-    #+END_SRC
-    #+BEGIN_SRC js
-    #+END_SRC
-    #+BEGIN_SRC js
-    #+END_SRC
-    #+BEGIN_SRC js
-    #+END_SRC
-    #+BEGIN_SRC js
-    #+END_SRC
-    #+BEGIN_SRC js
-    #+END_SRC
-    #+BEGIN_SRC js
-    #+END_SRC
+* Async and Performance
+** Asynchrony
+*** Event Loop
+    The event loop is the manner in which javascript's engine processes chunks of code. Code is passed into the engine in a queue, and the queue is looped over, calling events when they reach the front of the queue.
+    - callbacks are simply removed from the queue until their caller finishes. They are then added back into the queue.
+    - setTimeout() doesn't work like a callback , and only adds your function to the queue after a timer, but doesn't guarantee it will be at the front of the queue.
+*** Races
+    Race conditions can occur in js when two functions manipulating the same variables are called as callbacks to some other async functions.
+**** Fixes
+     - before:
+       #+BEGIN_SRC js
+         var res = [];
+
+         function response(data) {
+             res.push( data );
+         }
+
+         // ajax(..) is some arbitrary Ajax function given by a library
+         ajax( "http://some.url.1", response );
+         ajax( "http://some.url.2", response );
+       #+END_SRC
+
+     - after:
+       #+BEGIN_SRC js
+
+         var res = [];
+
+         function response(data) {
+             if (data.url == "http://some.url.1") {
+                 res[0] = data;
+             }
+             else if (data.url == "http://some.url.2") {
+                 res[1] = data;
+             }
+         }
+
+         // ajax(..) is some arbitrary Ajax function given by a library
+         ajax( "http://some.url.1", response );
+         ajax( "http://some.url.2", response );
+       #+END_SRC
+** Callbacks
+
+       #+BEGIN_SRC js
+       #+END_SRC
+       #+BEGIN_SRC js
+       #+END_SRC
+       #+BEGIN_SRC js
+       #+END_SRC
+       #+BEGIN_SRC js
+       #+END_SRC
+       #+BEGIN_SRC js
+       #+END_SRC
+       #+BEGIN_SRC js
+       #+END_SRC
+       #+BEGIN_SRC js
+       #+END_SRC
